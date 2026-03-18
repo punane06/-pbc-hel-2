@@ -335,8 +335,27 @@ app.post("/pdf", (req, res) => {
 
 });
 
-app.listen(PORT, () => {
+function startServer(port = PORT, options = {}) {
 
-    console.log(`Server running on http://localhost:${PORT}`);
+    const { logStartup = false } = options;
 
-});
+    return app.listen(port, () => {
+        if (logStartup) {
+            console.log(`Server running on http://localhost:${port}`);
+        }
+    });
+
+}
+
+if (require.main === module) {
+    startServer(PORT, { logStartup: true });
+}
+
+module.exports = {
+    app,
+    startServer,
+    parseDate,
+    isValidDateString,
+    validateCalculationInput,
+    calculateBenefits
+};

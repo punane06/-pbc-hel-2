@@ -34,6 +34,12 @@ Provides a quick overview:
 ### Data persistence
 Users can save calculation input and restore it later.
 
+Save/restore UX includes:
+
+- save progress and get an application ID
+- load by application ID
+- load last saved application from local browser state
+
 ### PDF export
 Users can download the benefit schedule as a **formatted PDF document**.
 
@@ -66,6 +72,17 @@ A **bar chart** visualises monthly benefit payments.
 - Dark mode
 - EU-style currency formatting (e.g. `2 933 €`)
 - Calendar date picker for birth date input
+
+### Validation and error handling
+
+- Backend validation for salary, birth date and application ID
+- Consistent `400 Validation failed` responses with detailed error list
+- Frontend status messages for save/load/calculate/PDF failures
+
+### Automated tests
+
+- Unit tests for core calculation and validation logic
+- API tests for calculate/save/load/pdf endpoints
 
 ---
 
@@ -128,9 +145,17 @@ npm install
 
 npm start
 
+Optional custom port:
+
+PORT=3001 npm start
+
 ### 3 Open in browser
 
-http://localhost:3000
+http://localhost:3000 (or your custom `PORT`)
+
+### 4 Run tests
+
+npm test
 
 ---
 
@@ -143,8 +168,10 @@ http://localhost:3000
    - calculation summary
    - payment chart
 4. Optionally:
-   - download PDF
    - save calculation
+   - load later by application ID
+   - load latest saved calculation
+   - download PDF
 
 ---
 
@@ -152,10 +179,9 @@ http://localhost:3000
 
 With more time the following could be added:
 
-- automated tests
-- API validation
 - Docker container for easy deployment
-- better accessibility
+- CI pipeline for test automation
+- stronger accessibility polish (keyboard and screen reader audit)
 - additional benefit rules
 
 ---
