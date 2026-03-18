@@ -135,6 +135,59 @@ monthly payment = daily rate × number of paid days
 
 ---
 
+## Engineering Decisions
+
+### Why SQLite
+
+- lightweight local setup
+- no extra infrastructure needed for evaluation
+- sufficient for a coding challenge with simple persistence requirements
+
+### Why vanilla JavaScript on the frontend
+
+- keeps the project small and easy to run locally
+- avoids framework setup overhead for a focused challenge
+- makes the business flow easy to review during technical discussion
+
+### Why server-side validation
+
+- frontend validation improves UX, but backend validation protects the application contract
+- invalid salary, birth date or application ID values are rejected consistently with `400` responses
+- this keeps calculation and persistence logic predictable
+
+---
+
+## Edge Cases Covered
+
+- salary cap applied above **€4000**
+- invalid or impossible birth dates rejected (for example `31.02.2026`)
+- invalid application IDs rejected before database access
+- missing saved application returns `404`
+- leap year dates supported
+- first month payment starts from the birth date and not from the first day of the month
+
+---
+
+## Known Limitations
+
+- this is a simplified parental benefit model and does not include real-world legal exceptions or additional benefit rules
+- there is no authentication, so saved applications are accessed only by application ID
+- persistence is local to the SQLite database file used in the runtime environment
+- frontend tests are not included yet; current automated coverage focuses on backend calculation and API behaviour
+
+---
+
+## Discussion Points
+
+Topics we would be ready to discuss in a technical interview:
+
+- why we prioritised requirement coverage first, then validation, then automated tests
+- how save/load UX was simplified to reduce user confusion
+- how input validation is split between UX-friendly frontend feedback and backend contract enforcement
+- what we would improve next with more time: accessibility audit, CI pipeline, Docker setup and broader rule coverage
+
+---
+
 ## Running the Project Locally
 
 ### 1 Install dependencies

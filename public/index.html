@@ -69,7 +69,8 @@
 
         </div>
 
-        <div id="statusMessage" class="hidden mb-6 rounded-lg border px-4 py-3 text-sm">
+        <div id="statusMessage" role="status" aria-live="polite" aria-atomic="true"
+            class="hidden mb-6 rounded-lg border px-4 py-3 text-sm">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <p id="statusText" class="leading-relaxed"></p>
                 <button id="copyIdBtn" onclick="copySavedApplicationId()"
@@ -169,6 +170,7 @@
 
         let chart = null
         let currentLanguage = "et"
+        let latestCalculationRequestId = 0
 
         const translations = {
 
@@ -181,14 +183,18 @@
                 birth: "Baby Birth Date",
                 birthHelp: "Date when the child is born.",
                 save: "Save Progress",
+                saveLoading: "Saving...",
                 pdf: "Download PDF",
+                pdfLoading: "Generating PDF...",
                 applicationId: "Saved Application ID",
                 restoreHelp: "Enter an application ID to restore saved progress.",
                 restoreHelpWithId: "Latest saved application ID on this device: {id}",
                 restoreTitle: "Continue with a saved application",
                 restoreSteps: "Step 1: Enter the application ID. Step 2: Select \"Load Saved Application\".",
                 load: "Load Saved Application",
+                loadLoading: "Loading...",
                 loadLast: "Load Last Saved",
+                loadLastLoading: "Loading latest...",
                 copyId: "Copy ID",
                 summary: "Calculation Summary",
                 salaryCard: "Salary",
@@ -227,14 +233,18 @@
                 birth: "Lapse sünnikuupäev",
                 birthHelp: "Kuupäev, millal laps sündis.",
                 save: "Salvesta pooleliolev töö",
+                saveLoading: "Salvestan...",
                 pdf: "Lae PDF",
+                pdfLoading: "Loon PDF-i...",
                 applicationId: "Salvestatud avalduse ID",
                 restoreHelp: "Sisesta avalduse ID, et salvestatud andmed taastada.",
                 restoreHelpWithId: "Selles brauseris viimati salvestatud avalduse ID: {id}",
                 restoreTitle: "Jätka salvestatud avaldusega",
                 restoreSteps: "Samm 1: Sisesta avalduse ID. Samm 2: Vajuta \"Laadi salvestatud avaldus\".",
                 load: "Laadi salvestatud avaldus",
+                loadLoading: "Laen...",
                 loadLast: "Laadi viimane salvestus",
+                loadLastLoading: "Laen viimast...",
                 copyId: "Kopeeri ID",
                 summary: "Arvutuse kokkuvõte",
                 salaryCard: "Brutokuupalk",
@@ -383,6 +393,17 @@
 
         }
 
+        function setButtonLoadingState(buttonId, isLoading, idleKey, loadingKey) {
+
+            const button = document.getElementById(buttonId)
+            const translation = translations[currentLanguage]
+
+            button.disabled = isLoading
+            button.setAttribute("aria-busy", String(isLoading))
+            button.innerText = isLoading ? translation[loadingKey] : translation[idleKey]
+
+        }
+
         async function copySavedApplicationId() {
 
             const copyIdBtn = document.getElementById("copyIdBtn")
@@ -400,7 +421,7 @@
 
             } catch (error) {
 
-                setStatus(translations[currentLanguage].statusSaveError, "error")
+                setStatus(translations[currentLanguage].statusCopyError, "error")
 
             }
 
@@ -465,6 +486,7 @@
             if (!salary || !birthDateRaw) return
 
             const birthDate = convertDate(birthDateRaw)
+            const requestId = ++latestCalculationRequestId
 
             let data
 
@@ -477,6 +499,8 @@
                 })
 
                 if (!response.ok) {
+                    if (requestId !== latestCalculationRequestId) return
+
                     setStatus(
                         await readApiErrorMessage(response, translations[currentLanguage].statusCalculateError),
                         "error"
@@ -486,7 +510,11 @@
 
                 data = await response.json()
 
+                if (requestId !== latestCalculationRequestId) return
+
             } catch (error) {
+
+                if (requestId !== latestCalculationRequestId) return
 
                 setStatus(translations[currentLanguage].statusCalculateError, "error")
                 return
@@ -578,6 +606,8 @@
 
             try {
 
+                setButtonLoadingState("pdfBtn", true, "pdf", "pdfLoading")
+
                 const response = await fetch("/pdf", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -609,6 +639,10 @@
 
                 setStatus(translations[currentLanguage].statusPdfError, "error")
 
+            } finally {
+
+                setButtonLoadingState("pdfBtn", false, "pdf", "pdfLoading")
+
             }
 
         }
@@ -625,6 +659,8 @@
             const birthDate = convertDate(birthDateRaw)
 
             try {
+
+                setButtonLoadingState("saveBtn", true, "save", "saveLoading")
 
                 const response = await fetch("/save", {
                     method: "POST",
@@ -656,6 +692,10 @@
             } catch (error) {
 
                 setStatus(translations[currentLanguage].statusSaveError, "error")
+
+            } finally {
+
+                setButtonLoadingState("saveBtn", false, "save", "saveLoading")
 
             }
 
@@ -692,6 +732,9 @@
 
             try {
 
+                setButtonLoadingState("loadBtn", true, "load", "loadLoading")
+                setButtonLoadingState("loadLastBtn", true, "loadLast", "loadLastLoading")
+
                 const response = await fetch(`/load/${applicationId}`)
 
                 if (response.status === 404) {
@@ -724,6 +767,12 @@
             } catch (error) {
 
                 setStatus(translations[currentLanguage].statusLoadError, "error")
+
+            } finally {
+
+                setButtonLoadingState("loadBtn", false, "load", "loadLoading")
+                setButtonLoadingState("loadLastBtn", false, "loadLast", "loadLastLoading")
+                updateRestoreHelp()
 
             }
 
