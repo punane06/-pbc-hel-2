@@ -52,98 +52,68 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 
                     <div>
-
                         <label id="salaryLabel" for="salary" class="font-medium">Brutokuupalk (€)</label>
-
                         <input id="salary" type="number"
                             class="w-full p-3 border rounded-lg text-black mt-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                             placeholder="3000" required aria-describedby="salaryHelp salaryError">
-
-                        <p id="salaryHelp" class="text-sm text-gray-700 dark:text-gray-300 mt-1">Brutokuupalk enne
-                            maksude mahaarvamist.</p>
+                        <p id="salaryHelp" class="text-sm text-gray-700 dark:text-gray-300 mt-1">Brutokuupalk enne maksude mahaarvamist.</p>
                         <p id="salaryError" class="hidden text-sm text-rose-600 mt-1"></p>
-
                     </div>
 
-                    <h2 id="inputSection" class="text-xl font-semibold mb-4"></h2>
-
-                    <label id="birthLabel" for="birthDate" class="font-medium">Lapse sünnikuupäev</label>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-
-                        <p id="birthHelp" class="text-sm text-gray-700 dark:text-gray-300 mt-1">Kuupäev, millal laps
-                            sündis.</p>
+                    <div>
+                        <label id="birthLabel" for="birthDate" class="font-medium">Lapse sünnikuupäev</label>
+                        <input id="birthDate" type="date"
+                            class="w-full p-3 border rounded-lg text-black mt-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                            required aria-describedby="birthHelp birthError">
+                        <p id="birthHelp" class="text-sm text-gray-700 dark:text-gray-300 mt-1">Kuupäev, millal laps sündis.</p>
                         <p id="birthError" class="hidden text-sm text-rose-600 mt-1"></p>
-
                     </div>
 
-                    <h2 id="paymentsTitle" class="text-xl font-semibold mb-4"></h2>
+                </div>
 
-                    <div class="overflow-x-auto">
-
-                        <button id="saveBtn" type="button" onclick="saveApplication()"
-                            class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:text-white/80 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-                            Salvesta pooleliolev töö
+                <div id="statusMessage" role="status" aria-live="polite" aria-atomic="true" tabindex="-1"
+                    class="hidden mb-6 rounded-lg border px-4 py-3 text-sm">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <p id="statusText" class="leading-relaxed"></p>
+                        <button id="copyIdBtn" type="button" onclick="copySavedApplicationId()"
+                            class="hidden self-start md:self-auto bg-white/80 text-slate-800 border border-slate-300 rounded-md px-3 py-1.5 text-xs font-semibold hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
                         </button>
-
-                        <button id="pdfBtn" type="button" onclick="downloadPDF()"
-                            class="flex-1 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 disabled:bg-green-300 disabled:text-white/80 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
-                            Lae PDF
-                        </button>
-
                     </div>
+                </div>
 
-                    <div id="statusMessage" role="status" aria-live="polite" aria-atomic="true" tabindex="-1"
-                        class="hidden mb-6 rounded-lg border px-4 py-3 text-sm">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                            <p id="statusText" class="leading-relaxed"></p>
-                            <button id="copyIdBtn" type="button" onclick="copySavedApplicationId()"
-                                class="hidden self-start md:self-auto bg-white/80 text-slate-800 border border-slate-300 rounded-md px-3 py-1.5 text-xs font-semibold hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-                            </button>
+                <div class="flex flex-wrap gap-3 mb-10">
+                    <button id="saveBtn" type="button" onclick="saveApplication()"
+                        class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:text-white/80 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                        Salvesta pooleliolev töö
+                    </button>
+                    <button id="pdfBtn" type="button" onclick="downloadPDF()"
+                        class="flex-1 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 disabled:bg-green-300 disabled:text-white/80 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
+                        Lae PDF
+                    </button>
+                </div>
 
-                            <button id="pdfBtn" type="button" onclick="downloadPDF()"
-                                class="flex-1 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 disabled:bg-green-300 disabled:text-white/80 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
-                            </button>
-
-                            <h3 id="restoreTitle" class="font-semibold text-base">Jätka salvestatud avaldusega</h3>
-                            <p id="restoreSteps" class="text-sm text-gray-700 dark:text-gray-300 mt-1 mb-3">Samm 1:
-                                Sisesta avalduse ID. Samm 2: Vajuta "Laadi salvestatud avaldus".</p>
-
-                            <tr>
-                                <th id="monthHeader" scope="col" class="p-2"></th>
-                                <th id="yearHeader" scope="col" class="p-2"></th>
-                                <th id="daysHeader" scope="col" class="p-2"></th>
-                                <th id="paymentHeader" scope="col" class="p-2"></th>
-                            </tr>
-
-                            </thead>
-
-                            <tbody id="results"></tbody>
-
-                            <label id="applicationIdLabel" for="applicationId" class="font-medium">Salvestatud avalduse
-                                ID</label>
-
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-8">
+                    <h3 id="restoreTitle" class="font-semibold text-base mb-2">Jätka salvestatud avaldusega</h3>
+                    <p id="restoreSteps" class="text-sm text-gray-700 dark:text-gray-300 mt-1 mb-3">Samm 1: Sisesta avalduse ID. Samm 2: Vajuta "Laadi salvestatud avaldus".</p>
+                    <div class="flex flex-wrap gap-3 items-end">
+                        <div class="flex-1 min-w-[200px]">
+                            <label id="applicationIdLabel" for="applicationId" class="font-medium">Salvestatud avalduse ID</label>
                             <input id="applicationId" type="number" min="1"
                                 class="w-full p-3 border rounded-lg text-black mt-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                                 placeholder="1" aria-describedby="restoreHelp applicationIdError">
-
-                            <p id="restoreHelp" class="text-sm text-gray-700 dark:text-gray-300 mt-1">Sisesta avalduse
-                                ID, et salvestatud andmed taastada.</p>
+                            <p id="restoreHelp" class="text-sm text-gray-700 dark:text-gray-300 mt-1">Sisesta avalduse ID, et salvestatud andmed taastada.</p>
                             <p id="applicationIdError" class="hidden text-sm text-rose-600 mt-1"></p>
-
                         </div>
-
                         <button id="loadBtn" type="button" onclick="loadApplication()"
                             class="bg-slate-700 text-white p-3 rounded-lg hover:bg-slate-800 disabled:bg-slate-400 disabled:text-white/80 disabled:cursor-not-allowed md:min-w-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600">
                             Laadi salvestatud avaldus
                         </button>
-
                         <button id="loadLastBtn" type="button" onclick="loadLastSavedApplication()"
                             class="bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 md:min-w-48 disabled:bg-indigo-300 disabled:text-white/80 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                             Laadi viimane salvestus
                         </button>
-
                     </div>
+                </div>
 
             </form>
 
@@ -715,7 +685,6 @@
             const table = document.getElementById("results")
             table.innerHTML = ""
 
-            let total = 0
             let labels = []
             let payments = []
 
@@ -724,11 +693,9 @@
                 :
                 ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
-            data.forEach(row => {
+            data.rows.forEach(row => {
 
                 const payment = Number(row.payment)
-
-                total += payment
 
                 labels.push(months[row.month - 1])
                 payments.push(payment)
@@ -746,22 +713,19 @@
 
             })
 
-            document.getElementById("total").innerText = formatCurrency(total)
-
-            const cappedSalary = Math.min(salary, 4000)
-            const dailyRate = cappedSalary / 30
+            document.getElementById("total").innerText = formatCurrency(data.totalBenefit)
 
             document.getElementById("summarySalary").innerText = formatCurrency(salary)
-            document.getElementById("summaryDaily").innerText = formatCurrency(dailyRate)
-            document.getElementById("summaryCap").innerText = salary > 4000
+            document.getElementById("summaryDaily").innerText = formatCurrency(data.dailyRate)
+            document.getElementById("summaryCap").innerText = data.capApplied
                 ? translations[currentLanguage].capYes
                 : translations[currentLanguage].capNo
-            document.getElementById("summaryTotal").innerText = formatCurrency(total)
+            document.getElementById("summaryTotal").innerText = formatCurrency(data.totalBenefit)
 
             document.getElementById("summary").classList.remove("hidden")
 
             renderChart(labels, payments)
-            updateChartSummary(labels, payments, total)
+            updateChartSummary(labels, payments, data.totalBenefit)
 
         }
 
