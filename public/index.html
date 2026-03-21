@@ -240,6 +240,7 @@
                 salaryRequired: "Enter a gross monthly salary.",
                 salaryInvalid: "Salary must be a positive number.",
                 birthDateRequired: "Select the baby's birth date.",
+                birthDateFuture: "Birth date cannot be in the future.",
                 statusSaved: "Progress saved. Application ID: {id}. Enter this ID below and select \"Load Saved Application\" to continue later.",
                 statusLoaded: "Saved application #{id} loaded successfully.",
                 statusNotFound: "No saved application was found with ID #{id}.",
@@ -302,6 +303,7 @@
                 salaryRequired: "Sisesta brutokuupalk.",
                 salaryInvalid: "Palk peab olema positiivne number.",
                 birthDateRequired: "Vali lapse sünnikuupäev.",
+                birthDateFuture: "Sünnikuupäev ei saa olla tulevikus.",
                 statusSaved: "Andmed on salvestatud. Avalduse ID: {id}. Hiljem jätkamiseks sisesta ID allpool ja vajuta \"Laadi salvestatud avaldus\".",
                 statusLoaded: "Salvestatud avaldus #{id} on edukalt laaditud.",
                 statusNotFound: "Avaldust ID-ga #{id} ei leitud.",
@@ -484,6 +486,15 @@
             if (!birthDateRaw) {
                 setFieldError("birthDate", t.birthDateRequired)
                 isValid = false
+            } else {
+                const selectedDate = new Date(`${birthDateRaw}T00:00:00`)
+                const today = new Date()
+                today.setHours(0, 0, 0, 0)
+
+                if (selectedDate > today) {
+                    setFieldError("birthDate", t.birthDateFuture)
+                    isValid = false
+                }
             }
 
             return isValid
@@ -966,6 +977,7 @@
             setFieldError("salary")
             calculate()
         })
+        document.getElementById("birthDate").max = new Date().toISOString().split("T")[0]
         document.getElementById("birthDate").addEventListener("input", () => {
             setFieldError("birthDate")
             calculate()
