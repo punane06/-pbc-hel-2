@@ -28,8 +28,21 @@ test("salary cap is applied at 4000", () => {
     assert.equal(rows[0].payment, 4133.33);
 });
 
+test("salary exactly 4000 does not exceed cap", () => {
+    const rows = calculateBenefits(4000, "01.01.2026");
+
+    assert.equal(rows[0].payment, 4133.33);
+});
+
 test("leap year date is accepted and calculated correctly", () => {
     const rows = calculateBenefits(3000, "29.02.2024");
+
+    assert.equal(rows[0].daysPaid, 1);
+    assert.equal(rows[0].payment, 100);
+});
+
+test("birth date on last day of month counts one day in first month", () => {
+    const rows = calculateBenefits(3000, "31.03.2026");
 
     assert.equal(rows[0].daysPaid, 1);
     assert.equal(rows[0].payment, 100);
@@ -53,4 +66,20 @@ test("validateCalculationInput returns errors for invalid payload", () => {
 
     assert.ok(errors.some((e) => e.includes("Salary must be a positive number.")));
     assert.ok(errors.some((e) => e.includes("Birth date must be a valid date")));
+});
+
+test("validateCalculationInput rejects future birth dates", () => {
+    const future = new Date();
+    future.setDate(future.getDate() + 2);
+
+    const dd = String(future.getDate()).padStart(2, "0");
+    const mm = String(future.getMonth() + 1).padStart(2, "0");
+    const yyyy = future.getFullYear();
+
+    const { errors } = validateCalculationInput({
+        salary: 2500,
+        birthDate: `${dd}.${mm}.${yyyy}`
+    });
+
+    assert.ok(errors.some((e) => e.includes("future")));
 });
