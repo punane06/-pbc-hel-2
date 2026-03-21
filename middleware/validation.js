@@ -19,17 +19,6 @@ function isValidDateString(dateString) {
     );
 }
 
-function isFutureDate(dateString) {
-    const [day, month, year] = dateString.split(".").map((v) => Number(v));
-    const inputDate = new Date(year, month - 1, day);
-    inputDate.setHours(0, 0, 0, 0);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return inputDate > today;
-}
-
 function validateCalculationInput(payload) {
     const salary = Number(payload.salary);
     const birthDate = payload.birthDate;
@@ -46,8 +35,6 @@ function validateCalculationInput(payload) {
 
     if (!isValidDateString(birthDate)) {
         errors.push("Birth date must be a valid date in dd.mm.yyyy format.");
-    } else if (isFutureDate(birthDate)) {
-        errors.push("Birth date cannot be in the future.");
     }
 
     return {

@@ -64,7 +64,7 @@ test("POST /calculate returns 400 for invalid salary", async () => {
     assert.ok(Array.isArray(body.details));
 });
 
-test("POST /calculate returns 400 for future birth date", async () => {
+test("POST /calculate accepts future birth date for forecasting", async () => {
     const future = new Date();
     future.setDate(future.getDate() + 2);
 
@@ -78,10 +78,10 @@ test("POST /calculate returns 400 for future birth date", async () => {
         body: JSON.stringify({ salary: 2500, birthDate: `${dd}.${mm}.${yyyy}` })
     });
 
-    assert.equal(response.status, 400);
+    assert.equal(response.status, 200);
 
     const body = await response.json();
-    assert.ok(body.details.some((message) => message.includes("future")));
+    assert.equal(body.rows.length, 12);
 });
 
 test("POST /save and GET /load/:id roundtrip works", async () => {

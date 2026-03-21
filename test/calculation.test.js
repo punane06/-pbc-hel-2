@@ -68,7 +68,7 @@ test("validateCalculationInput returns errors for invalid payload", () => {
     assert.ok(errors.some((e) => e.includes("Birth date must be a valid date")));
 });
 
-test("validateCalculationInput rejects future birth dates", () => {
+test("validateCalculationInput allows future birth dates for forecasting", () => {
     const future = new Date();
     future.setDate(future.getDate() + 2);
 
@@ -81,5 +81,5 @@ test("validateCalculationInput rejects future birth dates", () => {
         birthDate: `${dd}.${mm}.${yyyy}`
     });
 
-    assert.ok(errors.some((e) => e.includes("future")));
+    assert.equal(errors.length, 0);
 });

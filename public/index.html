@@ -62,10 +62,10 @@
 
                     <div>
                         <label id="birthLabel" for="birthDate" class="font-medium">Lapse sünnikuupäev</label>
-                        <input id="birthDate" type="date"
+                        <input id="birthDate" type="date" lang="et-EE" title="Vali kuupäev (pp.kk.aaaa)"
                             class="w-full p-3 border rounded-lg text-black mt-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                             required aria-describedby="birthHelp birthError">
-                        <p id="birthHelp" class="text-sm text-gray-700 dark:text-gray-300 mt-1">Kuupäev, millal laps sündis.</p>
+                        <p id="birthHelp" class="text-sm text-gray-700 dark:text-gray-300 mt-1">Vali kuupäev alates tänasest (pp.kk.aaaa).</p>
                         <p id="birthError" class="hidden text-sm text-rose-600 mt-1"></p>
                     </div>
 
@@ -205,7 +205,7 @@
                 salary: "Gross Monthly Salary (€)",
                 salaryHelp: "Salary before taxes.",
                 birth: "Baby Birth Date",
-                birthHelp: "Date when the child is born.",
+                birthHelp: "Choose a date from today onward (dd.mm.yyyy).",
                 save: "Save Progress",
                 saveLoading: "Saving...",
                 pdf: "Download PDF",
@@ -240,7 +240,7 @@
                 salaryRequired: "Enter a gross monthly salary.",
                 salaryInvalid: "Salary must be a positive number.",
                 birthDateRequired: "Select the baby's birth date.",
-                birthDateFuture: "Birth date cannot be in the future.",
+                birthDateFuture: "Birth date cannot be in the past.",
                 statusSaved: "Progress saved. Application ID: {id}. Enter this ID below and select \"Load Saved Application\" to continue later.",
                 statusLoaded: "Saved application #{id} loaded successfully.",
                 statusNotFound: "No saved application was found with ID #{id}.",
@@ -268,7 +268,7 @@
                 salary: "Brutokuupalk (€)",
                 salaryHelp: "Brutokuupalk enne maksude mahaarvamist.",
                 birth: "Lapse sünnikuupäev",
-                birthHelp: "Kuupäev, millal laps sündis.",
+                birthHelp: "Vali kuupäev alates tänasest (pp.kk.aaaa).",
                 save: "Salvesta pooleliolev töö",
                 saveLoading: "Salvestan...",
                 pdf: "Lae PDF",
@@ -303,7 +303,7 @@
                 salaryRequired: "Sisesta brutokuupalk.",
                 salaryInvalid: "Palk peab olema positiivne number.",
                 birthDateRequired: "Vali lapse sünnikuupäev.",
-                birthDateFuture: "Sünnikuupäev ei saa olla tulevikus.",
+                birthDateFuture: "Sünnikuupäev ei saa olla minevikus.",
                 statusSaved: "Andmed on salvestatud. Avalduse ID: {id}. Hiljem jätkamiseks sisesta ID allpool ja vajuta \"Laadi salvestatud avaldus\".",
                 statusLoaded: "Salvestatud avaldus #{id} on edukalt laaditud.",
                 statusNotFound: "Avaldust ID-ga #{id} ei leitud.",
@@ -491,7 +491,7 @@
                 const today = new Date()
                 today.setHours(0, 0, 0, 0)
 
-                if (selectedDate > today) {
+                if (selectedDate < today) {
                     setFieldError("birthDate", t.birthDateFuture)
                     isValid = false
                 }
@@ -977,7 +977,7 @@
             setFieldError("salary")
             calculate()
         })
-        document.getElementById("birthDate").max = new Date().toISOString().split("T")[0]
+        document.getElementById("birthDate").min = new Date().toISOString().split("T")[0]
         document.getElementById("birthDate").addEventListener("input", () => {
             setFieldError("birthDate")
             calculate()
