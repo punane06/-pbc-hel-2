@@ -109,11 +109,26 @@ A **bar chart** visualises monthly benefit payments.
 
 parental-benefit-calculator
 │
+├─ middleware
+│ └─ validation.js
+├─ routes
+│ ├─ applications.js
+│ ├─ calculate.js
+│ └─ pdf.js
+├─ services
+│ ├─ benefitCalculator.js
+│ └─ pdfGenerator.js
 ├─ public
-│ └─ index.html
+│ ├─ index.html
+│ └─ js
+│   ├─ app.js
+│   └─ translations.js
 │
 ├─ server.js
 ├─ database.js
+├─ test
+│ ├─ api.test.js
+│ └─ calculation.test.js
 ├─ package.json
 ├─ README.md
 └─ .gitignore
@@ -161,10 +176,13 @@ monthly payment = daily rate × number of paid days
 ## Edge Cases Covered
 
 - salary cap applied above **€4000**
+- salary exactly **€4000**
 - invalid or impossible birth dates rejected (for example `31.02.2026`)
+- future birth dates rejected
 - invalid application IDs rejected before database access
 - missing saved application returns `404`
 - leap year dates supported
+- birth date on the last day of month counts one day in the first month
 - first month payment starts from the birth date and not from the first day of the month
 
 ---
