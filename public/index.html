@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="et">
 
 <head>
 
@@ -14,162 +14,1015 @@
 
 <body class="bg-gray-100 font-sans dark:bg-gray-900 dark:text-white">
 
-    <div class="max-w-5xl mx-auto mt-4 md:mt-10 bg-white dark:bg-gray-800 p-4 md:p-8 rounded-xl shadow-lg">
+    <a id="skipToContent" href="#main-content"
+        class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-black focus:shadow-lg">
+        Liigu põhisisu juurde
+    </a>
 
-        <div class="flex justify-between items-center mb-8">
+    <main id="main-content" tabindex="-1">
 
-            <h1 id="title" class="text-3xl font-bold"></h1>
+        <div class="max-w-5xl mx-auto mt-4 md:mt-10 bg-white dark:bg-gray-800 p-4 md:p-8 rounded-xl shadow-lg">
 
-            <div class="flex gap-3">
+            <div class="flex justify-between items-center mb-8">
 
-                <button onclick="setLanguage('en')" class="text-xl">🇬🇧</button>
-                <button onclick="setLanguage('et')" class="text-xl">🇪🇪</button>
-                <button onclick="toggleDarkMode()" class="text-xl">🌙</button>
+                <h1 id="title" class="text-3xl font-bold">Vanemahüvitise kalkulaator</h1>
+
+                <nav id="languageNav" class="flex gap-3" aria-label="Keele ja kuvamise valikud">
+
+                    <button id="langEnBtn" type="button" onclick="setLanguage('en')"
+                        class="text-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                        aria-label="Lülita inglise keelele" aria-pressed="false"
+                        title="Lülita inglise keelele">🇬🇧</button>
+                    <button id="langEtBtn" type="button" onclick="setLanguage('et')"
+                        class="text-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                        aria-label="Lülita eesti keelele" aria-pressed="true" title="Lülita eesti keelele">🇪🇪</button>
+                    <button id="themeToggleBtn" type="button" onclick="toggleDarkMode()"
+                        class="text-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                        aria-pressed="false" aria-label="Lülita tumedale režiimile"
+                        title="Lülita tumedale režiimile">🌙</button>
+
+                </nav>
 
             </div>
+
+            <h2 id="inputSection" class="text-xl font-semibold mb-4">Sisendandmed</h2>
+
+            <form id="benefitForm" novalidate>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+                    <div>
+
+                        <label id="salaryLabel" for="salary" class="font-medium">Brutokuupalk (€)</label>
+
+                        <input id="salary" type="number"
+                            class="w-full p-3 border rounded-lg text-black mt-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                            placeholder="3000" required aria-describedby="salaryHelp salaryError">
+
+                        <p id="salaryHelp" class="text-sm text-gray-700 dark:text-gray-300 mt-1">Brutokuupalk enne
+                            maksude mahaarvamist.</p>
+                        <p id="salaryError" class="hidden text-sm text-rose-600 mt-1"></p>
+
+                    </div>
+
+                    <h2 id="inputSection" class="text-xl font-semibold mb-4"></h2>
+
+                    <label id="birthLabel" for="birthDate" class="font-medium">Lapse sünnikuupäev</label>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+                        <p id="birthHelp" class="text-sm text-gray-700 dark:text-gray-300 mt-1">Kuupäev, millal laps
+                            sündis.</p>
+                        <p id="birthError" class="hidden text-sm text-rose-600 mt-1"></p>
+
+                    </div>
+
+                    <h2 id="paymentsTitle" class="text-xl font-semibold mb-4"></h2>
+
+                    <div class="overflow-x-auto">
+
+                        <button id="saveBtn" type="button" onclick="saveApplication()"
+                            class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:text-white/80 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                            Salvesta pooleliolev töö
+                        </button>
+
+                        <button id="pdfBtn" type="button" onclick="downloadPDF()"
+                            class="flex-1 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 disabled:bg-green-300 disabled:text-white/80 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
+                            Lae PDF
+                        </button>
+
+                    </div>
+
+                    <div id="statusMessage" role="status" aria-live="polite" aria-atomic="true" tabindex="-1"
+                        class="hidden mb-6 rounded-lg border px-4 py-3 text-sm">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <p id="statusText" class="leading-relaxed"></p>
+                            <button id="copyIdBtn" type="button" onclick="copySavedApplicationId()"
+                                class="hidden self-start md:self-auto bg-white/80 text-slate-800 border border-slate-300 rounded-md px-3 py-1.5 text-xs font-semibold hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                            </button>
+
+                            <button id="pdfBtn" type="button" onclick="downloadPDF()"
+                                class="flex-1 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 disabled:bg-green-300 disabled:text-white/80 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
+                            </button>
+
+                            <h3 id="restoreTitle" class="font-semibold text-base">Jätka salvestatud avaldusega</h3>
+                            <p id="restoreSteps" class="text-sm text-gray-700 dark:text-gray-300 mt-1 mb-3">Samm 1:
+                                Sisesta avalduse ID. Samm 2: Vajuta "Laadi salvestatud avaldus".</p>
+
+                            <tr>
+                                <th id="monthHeader" scope="col" class="p-2"></th>
+                                <th id="yearHeader" scope="col" class="p-2"></th>
+                                <th id="daysHeader" scope="col" class="p-2"></th>
+                                <th id="paymentHeader" scope="col" class="p-2"></th>
+                            </tr>
+
+                            </thead>
+
+                            <tbody id="results"></tbody>
+
+                            <label id="applicationIdLabel" for="applicationId" class="font-medium">Salvestatud avalduse
+                                ID</label>
+
+                            <input id="applicationId" type="number" min="1"
+                                class="w-full p-3 border rounded-lg text-black mt-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                                placeholder="1" aria-describedby="restoreHelp applicationIdError">
+
+                            <p id="restoreHelp" class="text-sm text-gray-700 dark:text-gray-300 mt-1">Sisesta avalduse
+                                ID, et salvestatud andmed taastada.</p>
+                            <p id="applicationIdError" class="hidden text-sm text-rose-600 mt-1"></p>
+
+                        </div>
+
+                        <button id="loadBtn" type="button" onclick="loadApplication()"
+                            class="bg-slate-700 text-white p-3 rounded-lg hover:bg-slate-800 disabled:bg-slate-400 disabled:text-white/80 disabled:cursor-not-allowed md:min-w-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600">
+                            Laadi salvestatud avaldus
+                        </button>
+
+                        <button id="loadLastBtn" type="button" onclick="loadLastSavedApplication()"
+                            class="bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 md:min-w-48 disabled:bg-indigo-300 disabled:text-white/80 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                            Laadi viimane salvestus
+                        </button>
+
+                    </div>
+
+            </form>
+
+            <h2 id="summaryTitle" tabindex="-1" class="text-xl font-semibold mb-4">Arvutuse kokkuvõte</h2>
+
+            <div id="summary" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 hidden">
+
+                <div class="bg-blue-100 p-4 rounded-lg text-center text-black">
+                    <p id="salaryCardLabel" class="text-sm"></p>
+                    <p id="summarySalary" class="font-bold"></p>
+                </div>
+
+                <div class="bg-blue-100 p-4 rounded-lg text-center text-black">
+                    <p id="dailyCardLabel" class="text-sm"></p>
+                    <p id="summaryDaily" class="font-bold"></p>
+                </div>
+
+                <div class="bg-blue-100 p-4 rounded-lg text-center text-black">
+                    <p id="capCardLabel" class="text-sm"></p>
+                    <p id="summaryCap" class="font-bold"></p>
+                </div>
+
+                <div class="bg-blue-100 p-4 rounded-lg text-center text-black">
+                    <p id="totalCardLabel" class="text-sm"></p>
+                    <p id="summaryTotal" class="font-bold"></p>
+                </div>
+
+            </div>
+
+            <h2 id="paymentsTitle" class="text-xl font-semibold mb-4">Väljamaksed kuude kaupa</h2>
+
+            <div class="overflow-x-auto">
+
+                <table class="w-full border min-w-[560px]">
+
+                    <caption id="paymentsCaption" class="sr-only">Parental benefit payments by month</caption>
+
+                    <thead class="bg-gray-200 dark:bg-gray-700">
+
+                        <tr>
+                            <th id="monthHeader" scope="col" class="p-2">Kuu</th>
+                            <th id="yearHeader" scope="col" class="p-2">Aasta</th>
+                            <th id="daysHeader" scope="col" class="p-2">Makstud päevad</th>
+                            <th id="paymentHeader" scope="col" class="p-2">Väljamakse (€)</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="results"></tbody>
+
+                </table>
+
+            </div>
+
+            <h3 id="total" class="text-right font-bold mt-3"></h3>
+
+            <h2 id="chartTitle" class="text-xl font-semibold mt-10 mb-4">Väljamaksete graafik</h2>
+
+            <p id="chartHelp" class="text-sm text-gray-700 dark:text-gray-300 mb-3">Graafik annab visuaalse kokkuvõtte
+                kuumaksetest. Samad väärtused on olemas ülal olevas väljamaksete tabelis.</p>
+
+            <canvas id="benefitChart" role="img" aria-label="Monthly parental benefit bar chart"
+                aria-describedby="chartSummary"></canvas>
+            <p id="chartSummary" class="sr-only" aria-live="polite"></p>
 
         </div>
 
-        <h2 id="inputSection" class="text-xl font-semibold mb-4"></h2>
+    </main>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <script>
 
-            <div>
+        let chart = null
+        let currentLanguage = "et"
+        let latestCalculationRequestId = 0
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
 
-                <label id="salaryLabel" class="font-medium"></label>
+        const translations = {
 
-                <input id="salary" type="number" class="w-full p-3 border rounded-lg text-black mt-1"
-                    placeholder="3000">
+            en: {
 
-                <p id="salaryHelp" class="text-sm text-gray-500 mt-1"></p>
-                <p id="salaryError" class="hidden text-sm text-rose-600 mt-1"></p>
+                title: "Parental Benefit Calculator",
+                skipToContent: "Skip to main content",
+                languageNavLabel: "Language and display options",
+                langEnBtnLabel: "Switch to English",
+                langEtBtnLabel: "Switch to Estonian",
+                themeToggleLight: "Switch to light mode",
+                themeToggleDark: "Switch to dark mode",
+                inputSection: "Input Data",
+                salary: "Gross Monthly Salary (€)",
+                salaryHelp: "Salary before taxes.",
+                birth: "Baby Birth Date",
+                birthHelp: "Date when the child is born.",
+                save: "Save Progress",
+                saveLoading: "Saving...",
+                pdf: "Download PDF",
+                pdfLoading: "Generating PDF...",
+                applicationId: "Saved Application ID",
+                restoreHelp: "Enter an application ID to restore saved progress.",
+                restoreHelpWithId: "Latest saved application ID on this device: {id}",
+                restoreTitle: "Continue with a saved application",
+                restoreSteps: "Step 1: Enter the application ID. Step 2: Select \"Load Saved Application\".",
+                load: "Load Saved Application",
+                loadLoading: "Loading...",
+                loadLast: "Load Last Saved",
+                loadLastLoading: "Loading latest...",
+                copyId: "Copy ID",
+                summary: "Calculation Summary",
+                salaryCard: "Salary",
+                dailyRate: "Daily Rate",
+                cap: "Cap Applied",
+                total: "Total Benefit",
+                payments: "Benefit Payments",
+                month: "Month",
+                year: "Year",
+                days: "Days Paid",
+                payment: "Payment (€)",
+                paymentsCaption: "Parental benefit payments by month",
+                chart: "Benefit Chart",
+                chartHelp: "The chart is a visual summary of the monthly payments. The same values are available in the payments table above.",
+                chartSummaryTemplate: "Chart summary: highest monthly payment is {maxPayment} in {maxMonth}. Total benefit is {total}.",
+                capYes: "Yes",
+                capNo: "No",
+                statusMissingFields: "Enter salary and birth date before saving or calculating.",
+                salaryRequired: "Enter a gross monthly salary.",
+                salaryInvalid: "Salary must be a positive number.",
+                birthDateRequired: "Select the baby's birth date.",
+                statusSaved: "Progress saved. Application ID: {id}. Enter this ID below and select \"Load Saved Application\" to continue later.",
+                statusLoaded: "Saved application #{id} loaded successfully.",
+                statusNotFound: "No saved application was found with ID #{id}.",
+                statusSaveError: "Saving failed. Please try again.",
+                statusLoadError: "Loading failed. Please try again.",
+                statusCalculateError: "Calculation failed. Please check input values and try again.",
+                statusPdfError: "PDF generation failed. Please try again.",
+                statusIdCopied: "Application ID #{id} copied to clipboard.",
+                statusNoLocalSave: "No previously saved application ID was found on this device.",
+                statusMissingApplicationId: "Enter an application ID before loading.",
+                statusCopyError: "Copying the application ID failed. Please copy it manually."
 
-            </div>
+            },
 
-            <div>
+            et: {
 
-                <label id="birthLabel" class="font-medium"></label>
+                title: "Vanemahüvitise kalkulaator",
+                skipToContent: "Liigu põhisisu juurde",
+                languageNavLabel: "Keele ja kuvamise valikud",
+                langEnBtnLabel: "Lülita inglise keelele",
+                langEtBtnLabel: "Lülita eesti keelele",
+                themeToggleLight: "Lülita heledale režiimile",
+                themeToggleDark: "Lülita tumedale režiimile",
+                inputSection: "Sisendandmed",
+                salary: "Brutokuupalk (€)",
+                salaryHelp: "Brutokuupalk enne maksude mahaarvamist.",
+                birth: "Lapse sünnikuupäev",
+                birthHelp: "Kuupäev, millal laps sündis.",
+                save: "Salvesta pooleliolev töö",
+                saveLoading: "Salvestan...",
+                pdf: "Lae PDF",
+                pdfLoading: "Loon PDF-i...",
+                applicationId: "Salvestatud avalduse ID",
+                restoreHelp: "Sisesta avalduse ID, et salvestatud andmed taastada.",
+                restoreHelpWithId: "Selles brauseris viimati salvestatud avalduse ID: {id}",
+                restoreTitle: "Jätka salvestatud avaldusega",
+                restoreSteps: "Samm 1: Sisesta avalduse ID. Samm 2: Vajuta \"Laadi salvestatud avaldus\".",
+                load: "Laadi salvestatud avaldus",
+                loadLoading: "Laen...",
+                loadLast: "Laadi viimane salvestus",
+                loadLastLoading: "Laen viimast...",
+                copyId: "Kopeeri ID",
+                summary: "Arvutuse kokkuvõte",
+                salaryCard: "Brutokuupalk",
+                dailyRate: "Päevaraha",
+                cap: "Ülemäärane piir rakendub",
+                total: "Vanemahüvitise kogusumma",
+                payments: "Väljamaksed kuude kaupa",
+                month: "Kuu",
+                year: "Aasta",
+                days: "Makstud päevad",
+                payment: "Väljamakse (€)",
+                paymentsCaption: "Vanemahüvitise väljamaksed kuude kaupa",
+                chart: "Väljamaksete graafik",
+                chartHelp: "Graafik annab visuaalse kokkuvõtte kuumaksetest. Samad väärtused on olemas ülal olevas väljamaksete tabelis.",
+                chartSummaryTemplate: "Graafiku kokkuvõte: suurim kuumakse on {maxPayment} kuus {maxMonth}. Vanemahüvitise kogusumma on {total}.",
+                capYes: "Jah",
+                capNo: "Ei",
+                statusMissingFields: "Sisesta enne salvestamist või arvutamist palk ja sünnikuupäev.",
+                salaryRequired: "Sisesta brutokuupalk.",
+                salaryInvalid: "Palk peab olema positiivne number.",
+                birthDateRequired: "Vali lapse sünnikuupäev.",
+                statusSaved: "Andmed on salvestatud. Avalduse ID: {id}. Hiljem jätkamiseks sisesta ID allpool ja vajuta \"Laadi salvestatud avaldus\".",
+                statusLoaded: "Salvestatud avaldus #{id} on edukalt laaditud.",
+                statusNotFound: "Avaldust ID-ga #{id} ei leitud.",
+                statusSaveError: "Salvestamine ebaõnnestus. Proovi uuesti.",
+                statusLoadError: "Laadimine ebaõnnestus. Proovi uuesti.",
+                statusCalculateError: "Arvutamine ebaõnnestus. Kontrolli sisendväärtusi ja proovi uuesti.",
+                statusPdfError: "PDF loomine ebaõnnestus. Proovi uuesti.",
+                statusIdCopied: "Avalduse ID #{id} on kopeeritud lõikelauale.",
+                statusNoLocalSave: "Selles seadmes ei leitud varem salvestatud avalduse ID-d.",
+                statusMissingApplicationId: "Sisesta enne laadimist avalduse ID.",
+                statusCopyError: "Avalduse ID kopeerimine ebaõnnestus. Kopeeri ID käsitsi."
 
-                <input id="birthDate" type="date" class="w-full p-3 border rounded-lg text-black mt-1">
+            }
 
-                <p id="birthHelp" class="text-sm text-gray-500 mt-1"></p>
-                <p id="birthError" class="hidden text-sm text-rose-600 mt-1"></p>
+        }
 
-            </div>
+        const statusStyles = {
+            info: "border-slate-300 bg-slate-50 text-slate-700",
+            success: "border-emerald-300 bg-emerald-50 text-emerald-700",
+            error: "border-rose-300 bg-rose-50 text-rose-700"
+        }
 
-        </div>
+        function applyLanguage() {
 
-        <div class="flex flex-col md:flex-row gap-4 mb-6">
+            const t = translations[currentLanguage]
 
-            <button id="saveBtn" onclick="saveApplication()"
-                class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700">
-            </button>
+            document.documentElement.lang = currentLanguage
 
-            <button id="pdfBtn" onclick="downloadPDF()"
-                class="flex-1 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700">
-            </button>
+            document.getElementById("title").innerText = t.title
+            document.getElementById("skipToContent").innerText = t.skipToContent
+            document.getElementById("languageNav").setAttribute("aria-label", t.languageNavLabel)
+            document.getElementById("langEnBtn").setAttribute("aria-label", t.langEnBtnLabel)
+            document.getElementById("langEnBtn").setAttribute("title", t.langEnBtnLabel)
+            document.getElementById("langEtBtn").setAttribute("aria-label", t.langEtBtnLabel)
+            document.getElementById("langEtBtn").setAttribute("title", t.langEtBtnLabel)
+            document.getElementById("inputSection").innerText = t.inputSection
 
-        </div>
+            document.getElementById("salaryLabel").innerText = t.salary
+            document.getElementById("salaryHelp").innerText = t.salaryHelp
 
-        <div id="statusMessage" role="status" aria-live="polite" aria-atomic="true"
-            class="hidden mb-6 rounded-lg border px-4 py-3 text-sm">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <p id="statusText" class="leading-relaxed"></p>
-                <button id="copyIdBtn" onclick="copySavedApplicationId()"
-                    class="hidden self-start md:self-auto bg-white/80 text-slate-800 border border-slate-300 rounded-md px-3 py-1.5 text-xs font-semibold hover:bg-white">
-                </button>
-            </div>
-        </div>
+            document.getElementById("birthLabel").innerText = t.birth
+            document.getElementById("birthHelp").innerText = t.birthHelp
 
-        <div class="mb-6">
+            document.getElementById("saveBtn").innerText = t.save
+            document.getElementById("pdfBtn").innerText = t.pdf
+            document.getElementById("applicationIdLabel").innerText = t.applicationId
+            document.getElementById("restoreTitle").innerText = t.restoreTitle
+            document.getElementById("restoreSteps").innerText = t.restoreSteps
+            document.getElementById("loadBtn").innerText = t.load
+            document.getElementById("loadLastBtn").innerText = t.loadLast
+            document.getElementById("copyIdBtn").innerText = t.copyId
 
-            <h3 id="restoreTitle" class="font-semibold text-base"></h3>
-            <p id="restoreSteps" class="text-sm text-gray-500 mt-1 mb-3"></p>
+            document.getElementById("summaryTitle").innerText = t.summary
 
-        </div>
+            document.getElementById("salaryCardLabel").innerText = t.salaryCard
+            document.getElementById("dailyCardLabel").innerText = t.dailyRate
+            document.getElementById("capCardLabel").innerText = t.cap
+            document.getElementById("totalCardLabel").innerText = t.total
 
-        <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto_auto] gap-3 items-end mb-6">
+            document.getElementById("paymentsTitle").innerText = t.payments
 
-            <div>
+            document.getElementById("monthHeader").innerText = t.month
+            document.getElementById("yearHeader").innerText = t.year
+            document.getElementById("daysHeader").innerText = t.days
+            document.getElementById("paymentHeader").innerText = t.payment
+            document.getElementById("paymentsCaption").innerText = t.paymentsCaption
 
-                <label id="applicationIdLabel" for="applicationId" class="font-medium"></label>
+            document.getElementById("chartTitle").innerText = t.chart
+            document.getElementById("chartHelp").innerText = t.chartHelp
 
-                <input id="applicationId" type="number" min="1" class="w-full p-3 border rounded-lg text-black mt-1"
-                    placeholder="1">
+            document.getElementById("langEnBtn").setAttribute("aria-pressed", String(currentLanguage === "en"))
+            document.getElementById("langEtBtn").setAttribute("aria-pressed", String(currentLanguage === "et"))
 
-                <p id="restoreHelp" class="text-sm text-gray-500 mt-1"></p>
-                <p id="applicationIdError" class="hidden text-sm text-rose-600 mt-1"></p>
+            updateThemeToggleState()
 
-            </div>
+            updateRestoreHelp()
 
-            <button id="loadBtn" onclick="loadApplication()"
-                class="bg-slate-700 text-white p-3 rounded-lg hover:bg-slate-800 md:min-w-40">
-            </button>
+        }
 
-            <button id="loadLastBtn" onclick="loadLastSavedApplication()"
-                class="bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 md:min-w-48 disabled:opacity-50 disabled:cursor-not-allowed">
-            </button>
+        function setLanguage(lang) {
 
-        </div>
+            currentLanguage = lang
+            applyLanguage()
+            calculate()
 
-        <h2 id="summaryTitle" class="text-xl font-semibold mb-4"></h2>
+        }
 
-        <div id="summary" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 hidden">
+        function toggleDarkMode() {
 
-            <div class="bg-blue-100 p-4 rounded-lg text-center text-black">
-                <p id="salaryCardLabel" class="text-sm"></p>
-                <p id="summarySalary" class="font-bold"></p>
-            </div>
+            document.body.classList.toggle("dark")
+            updateThemeToggleState()
 
-            <div class="bg-blue-100 p-4 rounded-lg text-center text-black">
-                <p id="dailyCardLabel" class="text-sm"></p>
-                <p id="summaryDaily" class="font-bold"></p>
-            </div>
+        }
 
-            <div class="bg-blue-100 p-4 rounded-lg text-center text-black">
-                <p id="capCardLabel" class="text-sm"></p>
-                <p id="summaryCap" class="font-bold"></p>
-            </div>
+        function updateThemeToggleState() {
 
-            <div class="bg-blue-100 p-4 rounded-lg text-center text-black">
-                <p id="totalCardLabel" class="text-sm"></p>
-                <p id="summaryTotal" class="font-bold"></p>
-            </div>
+            const isDarkMode = document.body.classList.contains("dark")
+            const themeToggleBtn = document.getElementById("themeToggleBtn")
+            const themeLabel = isDarkMode
+                ? translations[currentLanguage].themeToggleLight
+                : translations[currentLanguage].themeToggleDark
 
-        </div>
+            themeToggleBtn.setAttribute("aria-pressed", String(isDarkMode))
+            themeToggleBtn.setAttribute("aria-label", themeLabel)
+            themeToggleBtn.setAttribute("title", themeLabel)
 
-        <h2 id="paymentsTitle" class="text-xl font-semibold mb-4"></h2>
+        }
 
-        <div class="overflow-x-auto">
+        function formatCurrency(value) {
 
-            <table class="w-full border min-w-[560px]">
+            return new Intl.NumberFormat("et-EE", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(Number(value)) + " €"
 
-                <thead class="bg-gray-200 dark:bg-gray-700">
+        }
 
-                    <tr>
-                        <th id="monthHeader" class="p-2"></th>
-                        <th id="yearHeader" class="p-2"></th>
-                        <th id="daysHeader" class="p-2"></th>
-                        <th id="paymentHeader" class="p-2"></th>
-                    </tr>
+        function convertDate(date) {
 
-                </thead>
+            const [year, month, day] = date.split("-")
 
-                <tbody id="results"></tbody>
+            return `${day}.${month}.${year}`
 
-            </table>
+        }
 
-        </div>
+        function convertStoredDateToInput(date) {
 
-        <h3 id="total" class="text-right font-bold mt-3"></h3>
+            const [day, month, year] = date.split(".")
 
-        <h2 id="chartTitle" class="text-xl font-semibold mt-10 mb-4"></h2>
+            return `${year}-${month}-${day}`
 
-        <canvas id="benefitChart"></canvas>
+        }
 
-    </div>
+        function getFormValues() {
 
-    <script type="module" src="/js/app.js"></script>
+            return {
+                salary: document.getElementById("salary").value,
+                birthDateRaw: document.getElementById("birthDate").value
+            }
+
+        }
+
+        function setFieldError(fieldId, message = "") {
+
+            const input = document.getElementById(fieldId)
+            const error = document.getElementById(`${fieldId}Error`)
+
+            if (!message) {
+                input.classList.remove("border-rose-500", "ring-1", "ring-rose-200")
+                input.removeAttribute("aria-invalid")
+                error.innerText = ""
+                error.classList.add("hidden")
+                return
+            }
+
+            input.classList.add("border-rose-500", "ring-1", "ring-rose-200")
+            input.setAttribute("aria-invalid", "true")
+            error.innerText = message
+            error.classList.remove("hidden")
+
+        }
+
+        function validateCalculationFields() {
+
+            const t = translations[currentLanguage]
+            const { salary, birthDateRaw } = getFormValues()
+            let isValid = true
+
+            setFieldError("salary")
+            setFieldError("birthDate")
+
+            if (!salary) {
+                setFieldError("salary", t.salaryRequired)
+                isValid = false
+            } else if (Number(salary) <= 0) {
+                setFieldError("salary", t.salaryInvalid)
+                isValid = false
+            }
+
+            if (!birthDateRaw) {
+                setFieldError("birthDate", t.birthDateRequired)
+                isValid = false
+            }
+
+            return isValid
+
+        }
+
+        function validateApplicationIdField() {
+
+            const applicationId = document.getElementById("applicationId").value.trim()
+
+            setFieldError("applicationId")
+
+            if (!applicationId) {
+                setFieldError("applicationId", translations[currentLanguage].statusMissingApplicationId)
+                return false
+            }
+
+            return true
+
+        }
+
+        function setStatus(message, type = "info", options = {}) {
+
+            const statusMessage = document.getElementById("statusMessage")
+            const statusText = document.getElementById("statusText")
+            const copyIdBtn = document.getElementById("copyIdBtn")
+
+            const isError = type === "error"
+
+            statusMessage.setAttribute("role", isError ? "alert" : "status")
+            statusMessage.setAttribute("aria-live", isError ? "assertive" : "polite")
+
+            statusMessage.className = `mb-6 rounded-lg border px-4 py-3 text-sm ${statusStyles[type] || statusStyles.info}`
+            statusText.innerText = message
+
+            if (options.copyId) {
+                copyIdBtn.dataset.applicationId = String(options.copyId)
+                copyIdBtn.classList.remove("hidden")
+            } else {
+                copyIdBtn.dataset.applicationId = ""
+                copyIdBtn.classList.add("hidden")
+            }
+
+            statusMessage.classList.remove("hidden")
+
+            if (options.focus) {
+                statusMessage.focus({ preventScroll: true })
+            }
+
+        }
+
+        function setButtonLoadingState(buttonId, isLoading, idleKey, loadingKey) {
+
+            const button = document.getElementById(buttonId)
+            const translation = translations[currentLanguage]
+
+            button.disabled = isLoading
+            button.setAttribute("aria-busy", String(isLoading))
+            button.innerText = isLoading ? translation[loadingKey] : translation[idleKey]
+
+        }
+
+        function updateChartSummary(labels, payments, total) {
+
+            if (!labels.length || !payments.length) return
+
+            const maxPayment = Math.max(...payments)
+            const maxIndex = payments.indexOf(maxPayment)
+            const maxMonth = labels[maxIndex]
+
+            const summary = translations[currentLanguage].chartSummaryTemplate
+                .replace("{maxPayment}", formatCurrency(maxPayment))
+                .replace("{maxMonth}", maxMonth)
+                .replace("{total}", formatCurrency(total))
+
+            document.getElementById("chartSummary").innerText = summary
+
+        }
+
+        async function copySavedApplicationId() {
+
+            const copyIdBtn = document.getElementById("copyIdBtn")
+            const applicationId = copyIdBtn.dataset.applicationId
+
+            if (!applicationId) return
+
+            try {
+
+                await navigator.clipboard.writeText(applicationId)
+                setStatus(
+                    translations[currentLanguage].statusIdCopied.replace("{id}", applicationId),
+                    "success"
+                )
+
+            } catch (error) {
+
+                setStatus(translations[currentLanguage].statusCopyError, "error")
+
+            }
+
+        }
+
+        function updateRestoreHelp() {
+
+            const t = translations[currentLanguage]
+            const savedId = localStorage.getItem("lastSavedApplicationId")
+            const loadLastBtn = document.getElementById("loadLastBtn")
+
+            document.getElementById("restoreHelp").innerText = savedId
+                ? t.restoreHelpWithId.replace("{id}", savedId)
+                : t.restoreHelp
+
+            loadLastBtn.disabled = !savedId
+
+        }
+
+        function syncApplicationIdInUrl(applicationId) {
+
+            const url = new URL(window.location.href)
+
+            if (applicationId) {
+                url.searchParams.set("applicationId", applicationId)
+            } else {
+                url.searchParams.delete("applicationId")
+            }
+
+            window.history.replaceState({}, "", url)
+
+        }
+
+        async function readApiErrorMessage(response, fallbackMessage) {
+
+            try {
+
+                const payload = await response.json()
+
+                if (payload && Array.isArray(payload.details) && payload.details.length > 0) {
+                    return payload.details.join(" ")
+                }
+
+                if (payload && payload.error) {
+                    return payload.error
+                }
+
+                return fallbackMessage
+
+            } catch (error) {
+
+                return fallbackMessage
+
+            }
+
+        }
+
+        async function calculate() {
+
+            const { salary, birthDateRaw } = getFormValues()
+
+            if (!salary || !birthDateRaw) return
+
+            if (!validateCalculationFields()) return
+
+            const birthDate = convertDate(birthDateRaw)
+            const requestId = ++latestCalculationRequestId
+
+            let data
+
+            try {
+
+                const response = await fetch("/calculate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ salary, birthDate })
+                })
+
+                if (!response.ok) {
+                    if (requestId !== latestCalculationRequestId) return
+
+                    setStatus(
+                        await readApiErrorMessage(response, translations[currentLanguage].statusCalculateError),
+                        "error"
+                    )
+                    return
+                }
+
+                data = await response.json()
+
+                if (requestId !== latestCalculationRequestId) return
+
+            } catch (error) {
+
+                if (requestId !== latestCalculationRequestId) return
+
+                setStatus(translations[currentLanguage].statusCalculateError, "error")
+                return
+
+            }
+
+            const table = document.getElementById("results")
+            table.innerHTML = ""
+
+            let total = 0
+            let labels = []
+            let payments = []
+
+            const months = currentLanguage === "et" ?
+                ["Jaanuar", "Veebruar", "Märts", "Aprill", "Mai", "Juuni", "Juuli", "August", "September", "Oktoober", "November", "Detsember"]
+                :
+                ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+            data.forEach(row => {
+
+                const payment = Number(row.payment)
+
+                total += payment
+
+                labels.push(months[row.month - 1])
+                payments.push(payment)
+
+                const tr = document.createElement("tr")
+
+                tr.innerHTML = `
+<th scope="row" class="p-2 font-medium">${months[row.month - 1]}</th>
+<td class="p-2 text-center">${row.year}</td>
+<td class="p-2 text-center">${row.daysPaid}</td>
+<td class="p-2 text-right">${formatCurrency(payment)}</td>
+`
+
+                table.appendChild(tr)
+
+            })
+
+            document.getElementById("total").innerText = formatCurrency(total)
+
+            const cappedSalary = Math.min(salary, 4000)
+            const dailyRate = cappedSalary / 30
+
+            document.getElementById("summarySalary").innerText = formatCurrency(salary)
+            document.getElementById("summaryDaily").innerText = formatCurrency(dailyRate)
+            document.getElementById("summaryCap").innerText = salary > 4000
+                ? translations[currentLanguage].capYes
+                : translations[currentLanguage].capNo
+            document.getElementById("summaryTotal").innerText = formatCurrency(total)
+
+            document.getElementById("summary").classList.remove("hidden")
+
+            renderChart(labels, payments)
+            updateChartSummary(labels, payments, total)
+
+        }
+
+        function renderChart(labels, data) {
+
+            const ctx = document.getElementById("benefitChart")
+            const reducedMotion = prefersReducedMotion.matches
+
+            if (chart) chart.destroy()
+
+            chart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: "#3b82f6"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    animation: reducedMotion ? false : { duration: 400 },
+                    plugins: { legend: { display: false } }
+                }
+            })
+
+        }
+
+        async function downloadPDF() {
+
+            const { salary, birthDateRaw } = getFormValues()
+
+            if (!salary || !birthDateRaw || !validateCalculationFields()) {
+                setStatus(translations[currentLanguage].statusMissingFields, "error", { focus: true })
+                return
+            }
+
+            const birthDate = convertDate(birthDateRaw)
+
+            try {
+
+                setButtonLoadingState("pdfBtn", true, "pdf", "pdfLoading")
+
+                const response = await fetch("/pdf", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        salary,
+                        birthDate,
+                        lang: currentLanguage
+                    })
+                })
+
+                if (!response.ok) {
+                    setStatus(
+                        await readApiErrorMessage(response, translations[currentLanguage].statusPdfError),
+                        "error",
+                        { focus: true }
+                    )
+                    return
+                }
+
+                const blob = await response.blob()
+
+                const url = window.URL.createObjectURL(blob)
+
+                const a = document.createElement("a")
+                a.href = url
+                a.download = "benefits.pdf"
+                a.click()
+
+            } catch (error) {
+
+                setStatus(translations[currentLanguage].statusPdfError, "error", { focus: true })
+
+            } finally {
+
+                setButtonLoadingState("pdfBtn", false, "pdf", "pdfLoading")
+
+            }
+
+        }
+
+        async function saveApplication() {
+
+            const { salary, birthDateRaw } = getFormValues()
+
+            if (!salary || !birthDateRaw || !validateCalculationFields()) {
+                setStatus(translations[currentLanguage].statusMissingFields, "error", { focus: true })
+                return
+            }
+
+            const birthDate = convertDate(birthDateRaw)
+
+            try {
+
+                setButtonLoadingState("saveBtn", true, "save", "saveLoading")
+
+                const response = await fetch("/save", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ salary, birthDate })
+                })
+
+                if (!response.ok) {
+                    setStatus(
+                        await readApiErrorMessage(response, translations[currentLanguage].statusSaveError),
+                        "error",
+                        { focus: true }
+                    )
+                    return
+                }
+
+                const data = await response.json()
+                const applicationId = String(data.id)
+
+                document.getElementById("applicationId").value = applicationId
+                localStorage.setItem("lastSavedApplicationId", applicationId)
+                syncApplicationIdInUrl(applicationId)
+                updateRestoreHelp()
+                setStatus(
+                    translations[currentLanguage].statusSaved.replace("{id}", applicationId),
+                    "success",
+                    { copyId: applicationId, focus: true }
+                )
+
+            } catch (error) {
+
+                setStatus(translations[currentLanguage].statusSaveError, "error", { focus: true })
+
+            } finally {
+
+                setButtonLoadingState("saveBtn", false, "save", "saveLoading")
+
+            }
+
+        }
+
+        async function loadApplication() {
+
+            const applicationId = document.getElementById("applicationId").value.trim()
+
+            if (!validateApplicationIdField()) {
+                setStatus(translations[currentLanguage].statusMissingApplicationId, "error", { focus: true })
+                return
+            }
+
+            await loadApplicationById(applicationId)
+
+        }
+
+        async function loadLastSavedApplication() {
+
+            const applicationId = localStorage.getItem("lastSavedApplicationId")
+
+            if (!applicationId) {
+                setStatus(translations[currentLanguage].statusNoLocalSave, "info", { focus: true })
+                return
+            }
+
+            document.getElementById("applicationId").value = applicationId
+            await loadApplicationById(applicationId)
+
+        }
+
+        async function loadApplicationById(applicationId) {
+
+            try {
+
+                setButtonLoadingState("loadBtn", true, "load", "loadLoading")
+                setButtonLoadingState("loadLastBtn", true, "loadLast", "loadLastLoading")
+
+                const response = await fetch(`/load/${applicationId}`)
+
+                if (response.status === 404) {
+                    setStatus(translations[currentLanguage].statusNotFound.replace("{id}", applicationId), "error", { focus: true })
+                    return
+                }
+
+                if (!response.ok) {
+                    setStatus(
+                        await readApiErrorMessage(response, translations[currentLanguage].statusLoadError),
+                        "error",
+                        { focus: true }
+                    )
+                    return
+                }
+
+                const data = await response.json()
+
+                document.getElementById("salary").value = data.salary
+                document.getElementById("birthDate").value = convertStoredDateToInput(data.birthDate)
+                document.getElementById("applicationId").value = data.id
+
+                localStorage.setItem("lastSavedApplicationId", String(data.id))
+                syncApplicationIdInUrl(data.id)
+                updateRestoreHelp()
+
+                await calculate()
+
+                setStatus(translations[currentLanguage].statusLoaded.replace("{id}", data.id), "success")
+                document.getElementById("summaryTitle").focus({ preventScroll: true })
+
+            } catch (error) {
+
+                setStatus(translations[currentLanguage].statusLoadError, "error", { focus: true })
+
+            } finally {
+
+                setButtonLoadingState("loadBtn", false, "load", "loadLoading")
+                setButtonLoadingState("loadLastBtn", false, "loadLast", "loadLastLoading")
+                updateRestoreHelp()
+
+            }
+
+        }
+
+        async function initializeSavedApplication() {
+
+            const applicationId = new URLSearchParams(window.location.search).get("applicationId")
+            const lastSavedApplicationId = localStorage.getItem("lastSavedApplicationId")
+
+            if (applicationId) {
+                document.getElementById("applicationId").value = applicationId
+                await loadApplicationById(applicationId)
+                return
+            }
+
+            if (lastSavedApplicationId) {
+                document.getElementById("applicationId").value = lastSavedApplicationId
+            }
+
+            updateRestoreHelp()
+
+        }
+
+        document.getElementById("salary").addEventListener("input", () => {
+            setFieldError("salary")
+            calculate()
+        })
+        document.getElementById("birthDate").addEventListener("input", () => {
+            setFieldError("birthDate")
+            calculate()
+        })
+        document.getElementById("applicationId").addEventListener("input", () => {
+            setFieldError("applicationId")
+        })
+        document.getElementById("applicationId").addEventListener("keydown", async (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault()
+                await loadApplication()
+            }
+        })
+        document.getElementById("benefitForm").addEventListener("submit", (event) => {
+            event.preventDefault()
+        })
+
+        applyLanguage()
+        initializeSavedApplication()
+
+    </script>
 
 </body>
 
