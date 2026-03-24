@@ -61,13 +61,32 @@ function applyLanguage() {
 
 function setLanguage(lang) {
     currentLanguage = lang;
+    localStorage.setItem("language", lang);
     applyLanguage();
     calculate();
 }
 
 function toggleDarkMode() {
     document.documentElement.classList.toggle("dark");
+    localStorage.setItem("darkMode", document.documentElement.classList.contains("dark"));
     updateThemeToggleState();
+}
+// Restore preferences on page load
+function initializePreferences() {
+    // 1. Check localStorage for dark mode preference
+    let darkMode = localStorage.getItem("darkMode");
+    if (darkMode === null) {
+        // 2. If not set, use system/browser color scheme preference
+        darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "true" : "false";
+    }
+    if (darkMode === "true") {
+        document.documentElement.classList.add("dark");
+    } else {
+        document.documentElement.classList.remove("dark");
+    }
+    // Restore language preference
+    const savedLang = localStorage.getItem("language");
+    if (savedLang) currentLanguage = savedLang;
 }
 
 function updateThemeToggleState() {
@@ -185,6 +204,13 @@ function setStatus(message, type = "info", options = {}) {
 
     if (options.focus) {
         statusMessage.focus({ preventScroll: true });
+    }
+
+    // auto-dismiss success after 6 seconds unless persistent
+    if (type === "success" && !options.persistent) {
+        setTimeout(() => {
+            statusMessage.classList.add("hidden");
+        }, 6000);
     }
 }
 
@@ -605,5 +631,6 @@ document.getElementById("benefitForm").addEventListener("submit", (event) => {
     event.preventDefault();
 });
 
+initializePreferences();
 applyLanguage();
 initializeSavedApplication();
