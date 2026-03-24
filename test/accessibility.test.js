@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const html = fs.readFileSync(path.join(__dirname, "..", "public", "index.html"), "utf8");
+const appJs = fs.readFileSync(path.join(__dirname, "..", "public", "js", "app.js"), "utf8");
 
 test("initial HTML includes Estonian lang and localized fallback content", () => {
     assert.match(html, /<html lang="et">/);
@@ -27,12 +28,12 @@ test("payments table uses column and row headers", () => {
     assert.match(html, /id="yearHeader" scope="col"/);
     assert.match(html, /id="daysHeader" scope="col"/);
     assert.match(html, /id="paymentHeader" scope="col"/);
-    assert.match(html, /<th scope="row" class="p-2 font-medium">\$\{months\[row\.month - 1\]\}<\/th>/);
+    assert.match(appJs, /<th scope="row" class="p-2 font-medium">\$\{months\[row\.month - 1\]\}<\/th>/);
 });
 
 test("chart accessibility helpers remain present", () => {
     assert.match(html, /id="chartHelp"/);
     assert.match(html, /id="benefitChart"[\s\S]*aria-describedby="chartSummary"/);
-    assert.match(html, /const prefersReducedMotion = window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
-    assert.match(html, /chartSummaryTemplate/);
+    assert.match(appJs, /const prefersReducedMotion = window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
+    assert.match(appJs, /chartSummaryTemplate/);
 });

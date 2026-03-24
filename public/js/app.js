@@ -3,11 +3,20 @@ import { translations, statusStyles } from "./translations.js";
 let chart = null;
 let currentLanguage = "et";
 let latestCalculationRequestId = 0;
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 function applyLanguage() {
     const t = translations[currentLanguage];
 
+    document.documentElement.lang = currentLanguage;
+
     document.getElementById("title").innerText = t.title;
+    document.getElementById("skipToContent").innerText = t.skipToContent;
+    document.getElementById("languageNav").setAttribute("aria-label", t.languageNavLabel);
+    document.getElementById("langEnBtn").setAttribute("aria-label", t.langEnBtnLabel);
+    document.getElementById("langEnBtn").setAttribute("title", t.langEnBtnLabel);
+    document.getElementById("langEtBtn").setAttribute("aria-label", t.langEtBtnLabel);
+    document.getElementById("langEtBtn").setAttribute("title", t.langEtBtnLabel);
     document.getElementById("inputSection").innerText = t.inputSection;
 
     document.getElementById("salaryLabel").innerText = t.salary;
@@ -33,6 +42,7 @@ function applyLanguage() {
     document.getElementById("totalCardLabel").innerText = t.total;
 
     document.getElementById("paymentsTitle").innerText = t.payments;
+    document.getElementById("paymentsCaption").innerText = t.paymentsCaption;
 
     document.getElementById("monthHeader").innerText = t.month;
     document.getElementById("yearHeader").innerText = t.year;
@@ -40,7 +50,12 @@ function applyLanguage() {
     document.getElementById("paymentHeader").innerText = t.payment;
 
     document.getElementById("chartTitle").innerText = t.chart;
+    document.getElementById("chartHelp").innerText = t.chartHelp;
 
+    document.getElementById("langEnBtn").setAttribute("aria-pressed", String(currentLanguage === "en"));
+    document.getElementById("langEtBtn").setAttribute("aria-pressed", String(currentLanguage === "et"));
+
+    updateThemeToggleState();
     updateRestoreHelp();
 }
 
@@ -51,8 +66,20 @@ function setLanguage(lang) {
 }
 
 function toggleDarkMode() {
-    console.log("Dark mode toggled!");
     document.documentElement.classList.toggle("dark");
+    updateThemeToggleState();
+}
+
+function updateThemeToggleState() {
+    const isDarkMode = document.documentElement.classList.contains("dark");
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+    const themeLabel = isDarkMode
+        ? translations[currentLanguage].themeToggleLight
+        : translations[currentLanguage].themeToggleDark;
+
+    themeToggleBtn.setAttribute("aria-pressed", String(isDarkMode));
+    themeToggleBtn.setAttribute("aria-label", themeLabel);
+    themeToggleBtn.setAttribute("title", themeLabel);
 }
 
 function formatCurrency(value) {
@@ -63,18 +90,13 @@ function formatCurrency(value) {
 }
 
 function convertDate(date) {
-    const parsed = new Date(date);
-    const day = String(parsed.getDate()).padStart(2, "0");
-    const month = String(parsed.getMonth() + 1).padStart(2, "0");
-    const year = parsed.getFullYear();
+    const [year, month, day] = date.split("-");
     return `${day}.${month}.${year}`;
 }
 
 function convertStoredDateToInput(date) {
     const [day, month, year] = date.split(".");
-    const dd = day.padStart(2, "0");
-    const mm = month.padStart(2, "0");
-    return `${year}-${mm}-${dd}`;
+    return `${year}-${month}-${day}`;
 }
 
 function getFormValues() {
@@ -144,6 +166,10 @@ function setStatus(message, type = "info", options = {}) {
     const statusText = document.getElementById("statusText");
     const copyIdBtn = document.getElementById("copyIdBtn");
 
+    const isError = type === "error";
+    statusMessage.setAttribute("role", isError ? "alert" : "status");
+    statusMessage.setAttribute("aria-live", isError ? "assertive" : "polite");
+
     statusMessage.className = `mb-6 rounded-lg border px-4 py-3 text-sm ${statusStyles[type] || statusStyles.info}`;
     statusText.innerText = message;
 
@@ -156,6 +182,10 @@ function setStatus(message, type = "info", options = {}) {
     }
 
     statusMessage.classList.remove("hidden");
+
+    if (options.focus) {
+        statusMessage.focus({ preventScroll: true });
+    }
 }
 
 function setButtonLoadingState(buttonId, isLoading, idleKey, loadingKey) {
@@ -165,6 +195,21 @@ function setButtonLoadingState(buttonId, isLoading, idleKey, loadingKey) {
     button.disabled = isLoading;
     button.setAttribute("aria-busy", String(isLoading));
     button.innerText = isLoading ? translation[loadingKey] : translation[idleKey];
+}
+
+function updateChartSummary(labels, payments, total) {
+    if (!labels.length || !payments.length) return;
+
+    const maxPayment = Math.max(...payments);
+    const maxIndex = payments.indexOf(maxPayment);
+    const maxMonth = labels[maxIndex];
+
+    const summary = translations[currentLanguage].chartSummaryTemplate
+        .replace("{maxPayment}", formatCurrency(maxPayment))
+        .replace("{maxMonth}", maxMonth)
+        .replace("{total}", formatCurrency(total));
+
+    document.getElementById("chartSummary").innerText = summary;
 }
 
 async function copySavedApplicationId() {
@@ -281,12 +326,10 @@ async function calculate() {
 
         const tr = document.createElement("tr");
 
-        tr.innerHTML = `
-<td class="p-2">${months[row.month - 1]}</td>
+        tr.innerHTML = `<th scope="row" class="p-2 font-medium">${months[row.month - 1]}</th>
 <td class="p-2 text-center">${row.year}</td>
 <td class="p-2 text-center">${row.daysPaid}</td>
-<td class="p-2 text-right">${formatCurrency(payment)}</td>
-`;
+<td class="p-2 text-right">${formatCurrency(payment)}</td>`;
 
         table.appendChild(tr);
     });
@@ -303,10 +346,12 @@ async function calculate() {
     document.getElementById("summary").classList.remove("hidden");
 
     renderChart(labels, payments);
+    updateChartSummary(labels, payments, data.totalBenefit);
 }
 
 function renderChart(labels, data) {
     const ctx = document.getElementById("benefitChart");
+    const reducedMotion = prefersReducedMotion.matches;
 
     if (chart) chart.destroy();
 
@@ -321,6 +366,7 @@ function renderChart(labels, data) {
         },
         options: {
             responsive: true,
+            animation: reducedMotion ? false : { duration: 400 },
             plugins: { legend: { display: false } }
         }
     });
@@ -330,7 +376,7 @@ async function downloadPDF() {
     const { salary, birthDateRaw } = getFormValues();
 
     if (!salary || !birthDateRaw || !validateCalculationFields()) {
-        setStatus(translations[currentLanguage].statusMissingFields, "error");
+        setStatus(translations[currentLanguage].statusMissingFields, "error", { focus: true });
         return;
     }
 
@@ -348,7 +394,8 @@ async function downloadPDF() {
         if (!response.ok) {
             setStatus(
                 await readApiErrorMessage(response, translations[currentLanguage].statusPdfError),
-                "error"
+                "error",
+                { focus: true }
             );
             return;
         }
@@ -361,7 +408,7 @@ async function downloadPDF() {
         a.download = "benefits.pdf";
         a.click();
     } catch (error) {
-        setStatus(translations[currentLanguage].statusPdfError, "error");
+        setStatus(translations[currentLanguage].statusPdfError, "error", { focus: true });
     } finally {
         setButtonLoadingState("pdfBtn", false, "pdf", "pdfLoading");
     }
@@ -371,7 +418,7 @@ async function saveApplication() {
     const { salary, birthDateRaw } = getFormValues();
 
     if (!salary || !birthDateRaw || !validateCalculationFields()) {
-        setStatus(translations[currentLanguage].statusMissingFields, "error");
+        setStatus(translations[currentLanguage].statusMissingFields, "error", { focus: true });
         return;
     }
 
@@ -389,7 +436,8 @@ async function saveApplication() {
         if (!response.ok) {
             setStatus(
                 await readApiErrorMessage(response, translations[currentLanguage].statusSaveError),
-                "error"
+                "error",
+                { focus: true }
             );
             return;
         }
@@ -404,10 +452,10 @@ async function saveApplication() {
         setStatus(
             translations[currentLanguage].statusSaved.replace("{id}", applicationId),
             "success",
-            { copyId: applicationId }
+            { copyId: applicationId, focus: true }
         );
     } catch (error) {
-        setStatus(translations[currentLanguage].statusSaveError, "error");
+        setStatus(translations[currentLanguage].statusSaveError, "error", { focus: true });
     } finally {
         setButtonLoadingState("saveBtn", false, "save", "saveLoading");
     }
@@ -417,7 +465,7 @@ async function loadApplication() {
     const applicationId = document.getElementById("applicationId").value.trim();
 
     if (!validateApplicationIdField()) {
-        setStatus(translations[currentLanguage].statusMissingApplicationId, "error");
+        setStatus(translations[currentLanguage].statusMissingApplicationId, "error", { focus: true });
         return;
     }
 
@@ -428,7 +476,7 @@ async function loadLastSavedApplication() {
     const applicationId = localStorage.getItem("lastSavedApplicationId");
 
     if (!applicationId) {
-        setStatus(translations[currentLanguage].statusNoLocalSave, "info");
+        setStatus(translations[currentLanguage].statusNoLocalSave, "info", { focus: true });
         return;
     }
 
@@ -444,14 +492,19 @@ async function loadApplicationById(applicationId) {
         const response = await fetch(`/load/${applicationId}`);
 
         if (response.status === 404) {
-            setStatus(translations[currentLanguage].statusNotFound.replace("{id}", applicationId), "error");
+            setStatus(
+                translations[currentLanguage].statusNotFound.replace("{id}", applicationId),
+                "error",
+                { focus: true }
+            );
             return;
         }
 
         if (!response.ok) {
             setStatus(
                 await readApiErrorMessage(response, translations[currentLanguage].statusLoadError),
-                "error"
+                "error",
+                { focus: true }
             );
             return;
         }
@@ -468,9 +521,13 @@ async function loadApplicationById(applicationId) {
 
         await calculate();
 
-        setStatus(translations[currentLanguage].statusLoaded.replace("{id}", data.id), "success");
+        setStatus(
+            translations[currentLanguage].statusLoaded.replace("{id}", data.id),
+            "success"
+        );
+        document.getElementById("summaryTitle").focus({ preventScroll: true });
     } catch (error) {
-        setStatus(translations[currentLanguage].statusLoadError, "error");
+        setStatus(translations[currentLanguage].statusLoadError, "error", { focus: true });
     } finally {
         setButtonLoadingState("loadBtn", false, "load", "loadLoading");
         setButtonLoadingState("loadLastBtn", false, "loadLast", "loadLastLoading");
@@ -495,6 +552,7 @@ async function initializeSavedApplication() {
     updateRestoreHelp();
 }
 
+// Ekspordi globaalse juurdepääsu jaoks (HTML onclick atribuudid vajavad neid)
 window.setLanguage = setLanguage;
 window.toggleDarkMode = toggleDarkMode;
 window.saveApplication = saveApplication;
@@ -503,15 +561,28 @@ window.copySavedApplicationId = copySavedApplicationId;
 window.loadApplication = loadApplication;
 window.loadLastSavedApplication = loadLastSavedApplication;
 
-document.getElementById("salary").addEventListener("input", () => {
+
+// Debounce utility
+function debounce(fn, delay) {
+    let timer = null;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+    };
+}
+
+const debouncedSalaryInput = debounce(() => {
     setFieldError("salary");
     calculate();
-});
+}, 400);
 
-document.getElementById("birthDate").addEventListener("input", () => {
+const debouncedBirthDateInput = debounce(() => {
     setFieldError("birthDate");
     calculate();
-});
+}, 400);
+
+document.getElementById("salary").addEventListener("input", debouncedSalaryInput);
+document.getElementById("birthDate").addEventListener("input", debouncedBirthDateInput);
 
 document.getElementById("applicationId").addEventListener("input", () => {
     setFieldError("applicationId");
@@ -522,6 +593,10 @@ document.getElementById("applicationId").addEventListener("keydown", async (even
         event.preventDefault();
         await loadApplication();
     }
+});
+
+document.getElementById("benefitForm").addEventListener("submit", (event) => {
+    event.preventDefault();
 });
 
 applyLanguage();
