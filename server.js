@@ -1,5 +1,4 @@
-const pino = require("pino");
-const logger = pino();
+const logger = require("./logger");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 // Swagger/OpenAPI setup

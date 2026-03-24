@@ -12,7 +12,7 @@ function getCacheKey(salary, birthDate) {
 }
 
 // Load rates from config
-const rates = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/rates2026.json"), "utf8"));
+const rates = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/rates.json"), "utf8"));
 const SALARY_CAP = rates.MAX_RATE;
 const MIN_RATE = rates.MIN_RATE;
 const SOCIAL_TAX_MIN = rates.SOCIAL_TAX_MIN;

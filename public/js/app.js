@@ -308,6 +308,14 @@ async function calculate() {
         return;
     }
 
+    // Show info if minApplied is true
+    if (data.minApplied) {
+        setStatus(
+            `Palk ${formatCurrency(salary)} on alla miinimummäära. Arvutus kasutab ${formatCurrency(data.cappedSalary)}.`,
+            "info"
+        );
+    }
+
     const table = document.getElementById("results");
     table.innerHTML = "";
 
@@ -336,6 +344,7 @@ async function calculate() {
 
     document.getElementById("total").innerText = formatCurrency(data.totalBenefit);
 
+
     document.getElementById("summarySalary").innerText = formatCurrency(salary);
     document.getElementById("summaryDaily").innerText = formatCurrency(data.dailyRate);
     document.getElementById("summaryCap").innerText = data.capApplied
@@ -343,7 +352,7 @@ async function calculate() {
         : translations[currentLanguage].capNo;
     document.getElementById("summaryTotal").innerText = formatCurrency(data.totalBenefit);
 
-    document.getElementById("summary").classList.remove("hidden");
+    document.getElementById("summarySection").classList.remove("hidden");
 
     renderChart(labels, payments);
     updateChartSummary(labels, payments, data.totalBenefit);
@@ -570,18 +579,16 @@ function debounce(fn, delay) {
     };
 }
 
-const debouncedSalaryInput = debounce(() => {
+const debouncedCalculate = debounce(calculate, 400);
+
+document.getElementById("salary").addEventListener("input", () => {
     setFieldError("salary");
-    calculate();
-}, 400);
-
-const debouncedBirthDateInput = debounce(() => {
+    debouncedCalculate();
+});
+document.getElementById("birthDate").addEventListener("input", () => {
     setFieldError("birthDate");
-    calculate();
-}, 400);
-
-document.getElementById("salary").addEventListener("input", debouncedSalaryInput);
-document.getElementById("birthDate").addEventListener("input", debouncedBirthDateInput);
+    debouncedCalculate();
+});
 
 document.getElementById("applicationId").addEventListener("input", () => {
     setFieldError("applicationId");
