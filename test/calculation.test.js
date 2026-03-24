@@ -80,3 +80,15 @@ test("validateCalculationInput allows future birth dates for forecasting", () =>
 
     assert.equal(errors.length, 0);
 });
+
+test("calculateBenefits uses cache for repeated calls", () => {
+    const salary = 2500;
+    const birthDate = "10.05.2026";
+    // First call (not cached)
+    const result1 = calculateBenefits(salary, birthDate);
+    // Second call (should be cached)
+    const result2 = calculateBenefits(salary, birthDate);
+    // Should be strictly equal (same reference from cache)
+    assert.strictEqual(result1, result2);
+    assert.equal(result1.length, 12);
+});

@@ -1,3 +1,28 @@
+const pino = require("pino");
+const logger = pino();
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+// Swagger/OpenAPI setup
+const swaggerDefinition = {
+    openapi: "3.0.0",
+    info: {
+        title: "Parental Benefit Calculator API",
+        version: process.env.npm_package_version || "1.0.0",
+        description: "API documentation for the Parental Benefit Calculator."
+    },
+    servers: [
+        { url: "http://localhost:3000", description: "Local server" }
+    ]
+};
+
+const swaggerOptions = {
+    swaggerDefinition,
+    apis: [
+        "./routes/*.js"
+    ]
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -13,13 +38,17 @@ const {
     calculateSummary,
     SALARY_CAP
 } = require("./services/benefitCalculator");
+
+
+const app = express();
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 const {
     isValidDateString,
     validateCalculationInput,
     sendValidationError,
     MAX_ALLOWED_SALARY
 } = require("./middleware/validation");
-
 
 function validateEnv() {
     if (process.env.NODE_ENV === "production" && !process.env.DB_PATH) {
@@ -29,7 +58,6 @@ function validateEnv() {
 
 validateEnv();
 
-const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
 app.use(helmet());
@@ -54,7 +82,7 @@ function startServer(port = PORT, options = {}) {
 
     const server = app.listen(port, () => {
         if (logStartup) {
-            console.log(`Server running on http://localhost:${port}`);
+                logger.info({ port }, `Server running on http://localhost:${port}`);
         }
     });
 
@@ -85,5 +113,6 @@ module.exports = {
     calculateSummary,
     SALARY_CAP,
     MAX_ALLOWED_SALARY,
-    sendValidationError
+    sendValidationError,
+    logger
 };
