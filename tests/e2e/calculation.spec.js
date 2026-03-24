@@ -10,13 +10,6 @@ test('complete calculation flow', async ({ page }) => {
   // Wait for calculation to complete and results to appear
   await expect(page.locator('#results tr')).toHaveCount(12);
   // Optionally, check the first row for a value
-  // const firstRow = await page.locator('#results tr').first().textContent();
-  // expect(firstRow).toContain('3000');
 
   // Optionally, test PDF download button if present
-  // const [ download ] = await Promise.all([
-  //   page.waitForEvent('download'),
-  //   page.click('#downloadPdf')
-  // ]);
-  // expect(await download.suggestedFilename()).toMatch(/\.pdf$/);
 });

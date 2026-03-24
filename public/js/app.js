@@ -552,7 +552,6 @@ async function initializeSavedApplication() {
     updateRestoreHelp();
 }
 
-// Ekspordi globaalse juurdepääsu jaoks (HTML onclick atribuudid vajavad neid)
 window.setLanguage = setLanguage;
 window.toggleDarkMode = toggleDarkMode;
 window.saveApplication = saveApplication;

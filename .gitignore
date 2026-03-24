@@ -2,3 +2,4 @@ node_modules
 benefits.db
 .env
 .DS_Store
+test-results/

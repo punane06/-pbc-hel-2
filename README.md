@@ -1,10 +1,11 @@
+
 # Parental Benefit Calculator
 
 A web application that calculates parental benefit payments based on a parent's gross monthly salary and the child's birth date.
 
 The application provides a clear 12-month payment schedule, visualisation of payments and the ability to export the results as a PDF document.
 
-This project was built as a simplified version of a parental benefit calculator similar to the systems maintained by the Estonian Social Insurance Board.
+This project was built as a simplified version of a parental benefit calculator, similar to the systems maintained by the Estonian Social Insurance Board, for demonstration and technical evaluation purposes.
 
 ---
 
@@ -54,13 +55,8 @@ The UI supports two languages:
 - English 🇬🇧
 - Estonian 🇪🇪
 
-Estonian terminology follows official style:
 
-- Brutokuupalk
-- Päevaraha
-- Vanemahüvitise kogusumma
-- Makstud päevad
-- Väljamakse
+Estonian terminology is used in the UI when the Estonian language is selected, following official style. All code, comments, and documentation are in English.
 
 ### Data visualisation
 A **bar chart** visualises monthly benefit payments.
@@ -334,6 +330,24 @@ With more time the following could be added:
 
 ---
 
-## Author
 
-Project created as part of a technical coding task.
+---
+
+
+---
+
+## Challenge Context & Team
+
+This project was developed as a technical challenge for the JobFair event (Helmes). The goal was to demonstrate clean code, robust business logic, accessibility, security, and modern engineering practices in a collaborative team setting.
+
+**Team members:**
+- Serle Tali (Team Lead)
+- Piret Maricic
+- Kati-Helen Peegel
+- Kadi Kerner
+
+---
+
+## License
+
+This repository is provided for technical evaluation and demonstration purposes only. All code is original and written in English, except for UI translations.
