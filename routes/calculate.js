@@ -1,8 +1,8 @@
 
-// Use shared logger instance
+// Use pino if available, otherwise fallback to a no-op logger for tests
 let logger;
 try {
-    logger = require("../logger");
+    logger = require("../server").logger;
     if (!logger) throw new Error();
 } catch {
     logger = { info: () => {}, error: () => {}, warn: () => {} };

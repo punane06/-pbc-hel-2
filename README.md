@@ -174,7 +174,7 @@ monthly payment = daily rate × number of paid days
 - salary cap applied above **€4000**
 - salary exactly **€4000**
 - invalid or impossible birth dates rejected (for example `31.02.2026`)
-- future birth dates accepted for forecasting purposes
+- future birth dates accepted for forecasting
 - invalid application IDs rejected before database access
 - missing saved application returns `404`
 - leap year dates supported

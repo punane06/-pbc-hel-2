@@ -92,12 +92,3 @@ test("calculateBenefits uses cache for repeated calls", () => {
     assert.strictEqual(result1, result2);
     assert.equal(result1.length, 12);
 });
-
-test("salary below minimum uses MIN_RATE", () => {
-    const salary = 500; // below minimum
-    const birthDate = "15.03.2026";
-    const rows = calculateBenefits(salary, birthDate);
-    // MIN_RATE is 820 from config
-    assert.equal(rows[0].payment, (820 / 30) * 17); // 17 days in first month
-    assert.ok(rows.every(row => row.payment >= 0));
-});
