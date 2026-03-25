@@ -3,7 +3,7 @@
 let logger;
 try {
     logger = require("../logger");
-    if (!logger) throw new Error('Logger instance is required');
+    if (!logger) throw new Error();
 } catch {
     logger = { info: () => {}, error: () => {}, warn: () => {} };
 }

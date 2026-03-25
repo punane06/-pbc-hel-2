@@ -1,7 +1,7 @@
 
 
-const fs = require("node:fs");
-const path = require("node:path");
+const fs = require("fs");
+const path = require("path");
 const { getDaysInMonth, addMonths, setDate, parse } = require("date-fns");
 
 // Simple in-memory LRU cache for calculation results
