@@ -59,7 +59,41 @@ validateEnv();
 
 const PORT = Number(process.env.PORT) || 3000;
 
-app.use(helmet());
+app.use(
+    helmet({
+        contentSecurityPolicy: {
+            useDefaults: true,
+            directives: {
+                "default-src": ["'self'"],
+                "script-src": [
+                    "'self'",
+                    "https://cdn.jsdelivr.net",
+                    "https://cdn.tailwindcss.com"
+                ],
+                "style-src": [
+                    "'self'",
+                    "'unsafe-inline'",
+                    "https://cdn.jsdelivr.net",
+                    "https://cdn.tailwindcss.com"
+                ],
+                "font-src": ["'self'", "https://cdn.jsdelivr.net"],
+                "img-src": ["'self'", "data:", "blob:", "https://cdn.jsdelivr.net"],
+                "connect-src": ["'self'", "https://cdn.jsdelivr.net"],
+                // Allow Chart.js CDN
+                "script-src-elem": [
+                    "'self'",
+                    "https://cdn.jsdelivr.net",
+                    "https://cdn.tailwindcss.com"
+                ],
+                "style-src-elem": [
+                    "'self'",
+                    "https://cdn.jsdelivr.net",
+                    "https://cdn.tailwindcss.com"
+                ]
+            }
+        }
+    })
+);
 app.use(cors({ origin: process.env.ALLOWED_ORIGIN || "http://localhost:3000" }));
 app.use(bodyParser.json());
 app.use(express.static("public"));

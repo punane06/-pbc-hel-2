@@ -3,7 +3,7 @@ const MAX_ALLOWED_SALARY = 50000;
 function isValidDateString(dateString) {
     if (typeof dateString !== "string") return false;
 
-    const match = dateString.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(dateString);
     if (!match) return false;
 
     const day = Number(match[1]);

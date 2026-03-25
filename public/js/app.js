@@ -3,7 +3,7 @@ import { translations, statusStyles } from "./translations.js";
 let chart = null;
 let currentLanguage = "et";
 let latestCalculationRequestId = 0;
-const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const prefersReducedMotion = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
 
 function applyLanguage() {
     const t = translations[currentLanguage];
@@ -77,7 +77,7 @@ function initializePreferences() {
     let darkMode = localStorage.getItem("darkMode");
     if (darkMode === null) {
         // 2. If not set, use system/browser color scheme preference
-        darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "true" : "false";
+        darkMode = globalThis.matchMedia("(prefers-color-scheme: dark)").matches ? "true" : "false";
     }
     if (darkMode === "true") {
         document.documentElement.classList.add("dark");
@@ -251,7 +251,9 @@ async function copySavedApplicationId() {
             "success"
         );
     } catch (error) {
+        // Optionally log error, but do not swallow silently
         setStatus(translations[currentLanguage].statusCopyError, "error");
+        throw error;
     }
 }
 
@@ -268,7 +270,7 @@ function updateRestoreHelp() {
 }
 
 function syncApplicationIdInUrl(applicationId) {
-    const url = new URL(window.location.href);
+    const url = new URL(globalThis.location.href);
 
     if (applicationId) {
         url.searchParams.set("applicationId", applicationId);
@@ -276,7 +278,7 @@ function syncApplicationIdInUrl(applicationId) {
         url.searchParams.delete("applicationId");
     }
 
-    window.history.replaceState({}, "", url);
+    globalThis.history.replaceState({}, "", url);
 }
 
 async function readApiErrorMessage(response, fallbackMessage) {
@@ -287,12 +289,13 @@ async function readApiErrorMessage(response, fallbackMessage) {
             return payload.details.join(" ");
         }
 
-        if (payload && payload.error) {
+        if (payload?.error) {
             return payload.error;
         }
 
         return fallbackMessage;
-    } catch (error) {
+    } catch {
+        // If parsing fails, just return fallbackMessage (no need to log in UI)
         return fallbackMessage;
     }
 }
@@ -300,88 +303,97 @@ async function readApiErrorMessage(response, fallbackMessage) {
 async function calculate() {
     const { salary, birthDateRaw } = getFormValues();
 
-    if (!salary || !birthDateRaw) return;
-    if (!validateCalculationFields()) return;
-
-    const birthDate = convertDate(birthDateRaw);
-    const requestId = ++latestCalculationRequestId;
-
-    let data;
+    // Loading indicator: set opacity to 0.5
+    const resultsSection = document.getElementById("resultsSection");
+    if (resultsSection) resultsSection.style.opacity = "0.5";
 
     try {
-        const response = await fetch("/calculate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ salary, birthDate })
-        });
+        if (!salary || !birthDateRaw) return;
+        if (!validateCalculationFields()) return;
 
-        if (!response.ok) {
+        const birthDate = convertDate(birthDateRaw);
+        const requestId = ++latestCalculationRequestId;
+
+        let data;
+
+        try {
+            const response = await fetch("/calculate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ salary, birthDate })
+            });
+
+            if (!response.ok) {
+                if (requestId !== latestCalculationRequestId) return;
+
+                setStatus(
+                    await readApiErrorMessage(response, translations[currentLanguage].statusCalculateError),
+                    "error"
+                );
+                return;
+            }
+
+            data = await response.json();
             if (requestId !== latestCalculationRequestId) return;
 
-            setStatus(
-                await readApiErrorMessage(response, translations[currentLanguage].statusCalculateError),
-                "error"
-            );
-            return;
+        } catch (error) {
+            if (requestId !== latestCalculationRequestId) return;
+            setStatus(translations[currentLanguage].statusCalculateError, "error");
+            throw error;
         }
 
-        data = await response.json();
-        if (requestId !== latestCalculationRequestId) return;
-    } catch (error) {
-        if (requestId !== latestCalculationRequestId) return;
+        // Show info if minApplied is true
+        if (data.minApplied) {
+            setStatus(
+                `Palk ${formatCurrency(salary)} on alla miinimummäära. Arvutus kasutab ${formatCurrency(data.cappedSalary)}.`,
+                "info"
+            );
+        }
 
-        setStatus(translations[currentLanguage].statusCalculateError, "error");
-        return;
-    }
+        const table = document.getElementById("results");
+        table.innerHTML = "";
 
-    // Show info if minApplied is true
-    if (data.minApplied) {
-        setStatus(
-            `Palk ${formatCurrency(salary)} on alla miinimummäära. Arvutus kasutab ${formatCurrency(data.cappedSalary)}.`,
-            "info"
-        );
-    }
+        const labels = [];
+        const payments = [];
 
-    const table = document.getElementById("results");
-    table.innerHTML = "";
+        const months = currentLanguage === "et"
+            ? ["Jaanuar", "Veebruar", "Märts", "Aprill", "Mai", "Juuni", "Juuli", "August", "September", "Oktoober", "November", "Detsember"]
+            : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-    const labels = [];
-    const payments = [];
+        data.rows.forEach((row) => {
+            const payment = Number(row.payment);
 
-    const months = currentLanguage === "et"
-        ? ["Jaanuar", "Veebruar", "Märts", "Aprill", "Mai", "Juuni", "Juuli", "August", "September", "Oktoober", "November", "Detsember"]
-        : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            labels.push(months[row.month - 1]);
+            payments.push(payment);
 
-    data.rows.forEach((row) => {
-        const payment = Number(row.payment);
+            const tr = document.createElement("tr");
 
-        labels.push(months[row.month - 1]);
-        payments.push(payment);
-
-        const tr = document.createElement("tr");
-
-        tr.innerHTML = `<th scope="row" class="p-2 font-medium">${months[row.month - 1]}</th>
+            tr.innerHTML = `<th scope="row" class="p-2 font-medium">${months[row.month - 1]}</th>
 <td class="p-2 text-center">${row.year}</td>
 <td class="p-2 text-center">${row.daysPaid}</td>
 <td class="p-2 text-right">${formatCurrency(payment)}</td>`;
 
-        table.appendChild(tr);
-    });
+            table.appendChild(tr);
+        });
 
-    document.getElementById("total").innerText = formatCurrency(data.totalBenefit);
+        document.getElementById("total").innerText = formatCurrency(data.totalBenefit);
 
 
-    document.getElementById("summarySalary").innerText = formatCurrency(salary);
-    document.getElementById("summaryDaily").innerText = formatCurrency(data.dailyRate);
-    document.getElementById("summaryCap").innerText = data.capApplied
-        ? translations[currentLanguage].capYes
-        : translations[currentLanguage].capNo;
-    document.getElementById("summaryTotal").innerText = formatCurrency(data.totalBenefit);
+        document.getElementById("summarySalary").innerText = formatCurrency(salary);
+        document.getElementById("summaryDaily").innerText = formatCurrency(data.dailyRate);
+        document.getElementById("summaryCap").innerText = data.capApplied
+            ? translations[currentLanguage].capYes
+            : translations[currentLanguage].capNo;
+        document.getElementById("summaryTotal").innerText = formatCurrency(data.totalBenefit);
 
-    document.getElementById("summarySection").classList.remove("hidden");
+        document.getElementById("summarySection").classList.remove("hidden");
 
-    renderChart(labels, payments);
-    updateChartSummary(labels, payments, data.totalBenefit);
+        renderChart(labels, payments);
+        updateChartSummary(labels, payments, data.totalBenefit);
+    } finally {
+        // Restore opacity
+        if (resultsSection) resultsSection.style.opacity = "1";
+    }
 }
 
 function renderChart(labels, data) {
@@ -402,7 +414,18 @@ function renderChart(labels, data) {
         options: {
             responsive: true,
             animation: reducedMotion ? false : { duration: 400 },
-            plugins: { legend: { display: false } }
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            // Localized label for tooltip
+                            const t = translations[currentLanguage];
+                            return `${t.payment}: ${formatCurrency(context.parsed.y)}`;
+                        }
+                    }
+                }
+            }
         }
     });
 }
@@ -436,14 +459,16 @@ async function downloadPDF() {
         }
 
         const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
+        const url = globalThis.URL.createObjectURL(blob);
 
+        const today = new Date().toISOString().split("T")[0];
         const a = document.createElement("a");
         a.href = url;
-        a.download = "benefits.pdf";
+        a.download = `vanemahuvitis_${today}.pdf`;
         a.click();
     } catch (error) {
         setStatus(translations[currentLanguage].statusPdfError, "error", { focus: true });
+        throw error;
     } finally {
         setButtonLoadingState("pdfBtn", false, "pdf", "pdfLoading");
     }
@@ -491,6 +516,7 @@ async function saveApplication() {
         );
     } catch (error) {
         setStatus(translations[currentLanguage].statusSaveError, "error", { focus: true });
+        throw error;
     } finally {
         setButtonLoadingState("saveBtn", false, "save", "saveLoading");
     }
@@ -563,6 +589,7 @@ async function loadApplicationById(applicationId) {
         document.getElementById("summaryTitle").focus({ preventScroll: true });
     } catch (error) {
         setStatus(translations[currentLanguage].statusLoadError, "error", { focus: true });
+        throw error;
     } finally {
         setButtonLoadingState("loadBtn", false, "load", "loadLoading");
         setButtonLoadingState("loadLastBtn", false, "loadLast", "loadLastLoading");
@@ -571,7 +598,7 @@ async function loadApplicationById(applicationId) {
 }
 
 async function initializeSavedApplication() {
-    const applicationId = new URLSearchParams(window.location.search).get("applicationId");
+    const applicationId = new URLSearchParams(globalThis.location.search).get("applicationId");
     const lastSavedApplicationId = localStorage.getItem("lastSavedApplicationId");
 
     if (applicationId) {
@@ -587,13 +614,13 @@ async function initializeSavedApplication() {
     updateRestoreHelp();
 }
 
-window.setLanguage = setLanguage;
-window.toggleDarkMode = toggleDarkMode;
-window.saveApplication = saveApplication;
-window.downloadPDF = downloadPDF;
-window.copySavedApplicationId = copySavedApplicationId;
-window.loadApplication = loadApplication;
-window.loadLastSavedApplication = loadLastSavedApplication;
+globalThis.setLanguage = setLanguage;
+globalThis.toggleDarkMode = toggleDarkMode;
+globalThis.saveApplication = saveApplication;
+globalThis.downloadPDF = downloadPDF;
+globalThis.copySavedApplicationId = copySavedApplicationId;
+globalThis.loadApplication = loadApplication;
+globalThis.loadLastSavedApplication = loadLastSavedApplication;
 
 
 // Debounce utility
@@ -633,4 +660,6 @@ document.getElementById("benefitForm").addEventListener("submit", (event) => {
 
 initializePreferences();
 applyLanguage();
-initializeSavedApplication();
+// Prefer top-level await if supported, otherwise call as before
+// Use top-level await for module initialization
+await initializeSavedApplication();
